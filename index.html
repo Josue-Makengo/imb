@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="IMB — La plateforme qui connecte enseignants et parents pour un suivi scolaire transparent en temps réel." />
+  <meta name="theme-color" content="#0B1F3A" />
+  <title>IMB — Intelligence Mobile pour l'École</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getFirestore, collection, getCountFromServer } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey:            "AIzaSyC_91KMCxvnfCGCThsI4CBKzSWDBboPe18",
+      authDomain:        "imb-platform.firebaseapp.com",
+      projectId:         "imb-platform",
+      storageBucket:     "imb-platform.firebasestorage.app",
+      messagingSenderId: "565701598562",
+      appId:             "1:565701598562:web:5b4a43ce65e6dbfabb203b",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    async function loadRealStats() {
+      try {
+        // Importer query et where pour filtrer par rôle
+        const { query, where } = await import(
+          'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
+        );
+
+        const [studentsSnap, parentsSnap, schoolsSnap, teachersSnap] = await Promise.all([
+          getCountFromServer(collection(db, 'students')),
+          getCountFromServer(query(collection(db, 'users'), where('role', '==', 'parent'))),
+          getCountFromServer(collection(db, 'schools')),
+          getCountFromServer(query(collection(db, 'users'), where('role', '==', 'teacher'))),
+        ]);
+
+        window.__IMB_STATS__ = {
+          students: studentsSnap.data().count,
+          parents:  parentsSnap.data().count,
+          schools:  schoolsSnap.data().count,
+          teachers: teachersSnap.data().count,
+        };
+
+        // Notifier main.js que les stats sont prêtes
+        // Déclencher refresh via événement custom
+        window.dispatchEvent(new CustomEvent('imb:stats-ready', {
+          detail: window.__IMB_STATS__
+        }));
+
+      } catch (err) {
+        console.warn('Stats Firebase non disponibles:', err.message);
+        window.__IMB_STATS__ = { students: 0, parents: 0, schools: 0, teachers: 0 };
+        window.dispatchEvent(new CustomEvent('imb:stats-ready', {
+          detail: window.__IMB_STATS__
+        }));
+      }
+    }
+
+    loadRealStats();
+  </script>
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body>
+
+  <!-- Skip link -->
+  <a class="skip-link" href="#main">Passer au contenu principal</a>
+
+  <!-- ═══════════════════════════════
+       HEADER
+  ═══════════════════════════════ -->
+  <header class="header" id="header" role="banner">
+    <div class="header__inner">
+
+      <a class="header__brand" href="#" aria-label="IMB — Accueil">
+        <span class="header__brand-logo" aria-hidden="true">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </span>
+        <span class="header__brand-name">IMB</span>
+      </a>
+
+      <nav class="header__nav" role="navigation" aria-label="Navigation principale">
+        <a class="header__nav-link" href="#features">Fonctionnalités</a>
+        <a class="header__nav-link" href="#pour-parents">Parents</a>
+        <a class="header__nav-link" href="#pour-ecoles">Écoles</a>
+        <a class="header__nav-link" href="#stats">Chiffres</a>
+        <a class="header__nav-link" href="#contact">Contact</a>
+        <a class="header__cta" href="pages/login.html" aria-label="Accéder à l'interface administrateur IMB">
+          <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
+          Espace Admin
+        </a>
+      </nav>
+
+      <!-- Burger mobile -->
+      <button
+        class="header__burger"
+        type="button"
+        id="burger"
+        aria-label="Ouvrir le menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <span class="header__burger-bar"></span>
+        <span class="header__burger-bar"></span>
+        <span class="header__burger-bar"></span>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- Menu mobile -->
+  <div class="mobile-overlay" id="mobile-overlay" aria-hidden="true"></div>
+  <nav
+    class="mobile-menu"
+    id="mobile-menu"
+    aria-label="Menu mobile"
+    aria-hidden="true"
+  >
+    <div class="mobile-menu__header">
+      <span class="header__brand-name">IMB</span>
+      <button
+        class="mobile-menu__close"
+        type="button"
+        id="mobile-close"
+        aria-label="Fermer le menu"
+      >
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="mobile-menu__links">
+      <a class="mobile-menu__link" href="#features">
+        <i class="fa-solid fa-star" aria-hidden="true"></i>
+        Fonctionnalités
+      </a>
+      <a class="mobile-menu__link" href="#pour-parents">
+        <i class="fa-solid fa-heart" aria-hidden="true"></i>
+        Pour les parents
+      </a>
+      <a class="mobile-menu__link" href="#pour-ecoles">
+        <i class="fa-solid fa-school" aria-hidden="true"></i>
+        Pour les écoles
+      </a>
+      <a class="mobile-menu__link" href="#stats">
+        <i class="fa-solid fa-chart-bar" aria-hidden="true"></i>
+        Chiffres clés
+      </a>
+      <a class="mobile-menu__link" href="#contact">
+        <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+        Nous contacter
+      </a>
+    </div>
+    <div class="mobile-menu__footer">
+      <a class="header__cta" href="pages/login.html" style="width:100%;justify-content:center;">
+        <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
+        Espace Admin
+      </a>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════
+       MAIN
+  ═══════════════════════════════ -->
+  <main id="main">
+
+    <!-- ── HERO ── -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__bg" aria-hidden="true">
+        <div class="hero__bg-circle hero__bg-circle--1"></div>
+        <div class="hero__bg-circle hero__bg-circle--2"></div>
+        <div class="hero__bg-grid"></div>
+      </div>
+
+      <div class="hero__inner">
+        <div class="hero__content">
+
+          <div class="hero__tag reveal">
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+            Plateforme éducative nouvelle génération
+          </div>
+
+          <h1 class="hero__title" id="hero-title">
+            <span class="reveal">L'école et la famille,</span>
+            <em class="hero__title-accent reveal">enfin connectées.</em>
+          </h1>
+
+          <p class="hero__desc reveal">
+            IMB donne aux parents un regard clair sur le quotidien scolaire
+            de leurs enfants — présence, résultats, comportement — et aux
+            enseignants un canal direct et humain pour communiquer.
+          </p>
+
+          <div class="hero__actions reveal">
+            <a class="btn btn--accent" href="#contact" aria-label="Demander une démonstration">
+              <i class="fa-solid fa-rocket" aria-hidden="true"></i>
+              Demander une démo
+            </a>
+            <a class="btn btn--ghost" href="#features" aria-label="Découvrir les fonctionnalités">
+              <i class="fa-solid fa-play" aria-hidden="true"></i>
+              Voir comment ça marche
+            </a>
+          </div>
+
+        </div>
+
+        <!-- Dashboard preview -->
+        <div class="hero__preview reveal" aria-hidden="true">
+          <div class="preview-card preview-card--main">
+            <div class="preview-card__header">
+              <div class="preview-avatar preview-avatar--blue">
+                <i class="fa-solid fa-chalkboard-user"></i>
+              </div>
+              <div>
+                <p class="preview-card__name">Rapport — Mme Diallo</p>
+                <p class="preview-card__sub">CM2 B · Aujourd'hui</p>
+              </div>
+              <span class="preview-badge preview-badge--green">
+                <i class="fa-solid fa-circle"></i> En ligne
+              </span>
+            </div>
+            <ul class="preview-stats">
+              <li class="preview-stat">
+                <span class="preview-stat__label">
+                  <i class="fa-solid fa-user-check"></i> Présence
+                </span>
+                <span class="preview-stat__val preview-stat__val--green">Présent</span>
+              </li>
+              <li class="preview-stat">
+                <span class="preview-stat__label">
+                  <i class="fa-solid fa-calculator"></i> Mathématiques
+                </span>
+                <span class="preview-stat__val preview-stat__val--green">Excellent</span>
+              </li>
+              <li class="preview-stat">
+                <span class="preview-stat__label">
+                  <i class="fa-solid fa-book-open"></i> Français
+                </span>
+                <span class="preview-stat__val preview-stat__val--orange">À renforcer</span>
+              </li>
+              <li class="preview-stat">
+                <span class="preview-stat__label">
+                  <i class="fa-solid fa-star"></i> Application
+                </span>
+                <span class="preview-stat__val preview-stat__val--blue">
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-regular fa-star"></i>
+                </span>
+              </li>
+            </ul>
+            <a class="preview-wa" href="#" aria-label="Contacter le parent via WhatsApp">
+              <i class="fa-brands fa-whatsapp"></i>
+              Contacter le parent
+            </a>
+          </div>
+
+          <!-- Floating notifications -->
+          <div class="preview-float preview-float--1">
+            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+            Rapport envoyé au parent
+          </div>
+          <div class="preview-float preview-float--2">
+            <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+            Sync temps réel
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FONCTIONNALITÉS ── -->
+    <section class="section features" id="features" aria-labelledby="features-title">
+      <div class="section__inner">
+
+        <header class="section__header">
+          <p class="section__eyebrow reveal">
+            <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+            Fonctionnalités
+          </p>
+          <h2 class="section__title reveal" id="features-title">
+            Tout ce dont vous avez besoin,<br />
+            <span class="text-accent">rien de superflu.</span>
+          </h2>
+        </header>
+
+        <div class="features__grid">
+
+          <article class="feature-card reveal" aria-labelledby="feat1-title">
+            <div class="feature-card__icon feature-card__icon--blue">
+              <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>
+            </div>
+            <h3 class="feature-card__title" id="feat1-title">
+              Rapports journaliers
+            </h3>
+            <p class="feature-card__desc">
+              Chaque jour, l'enseignant saisit la présence, l'application
+              générale et le niveau par matière de chaque élève. En quelques
+              clics, depuis n'importe quel appareil.
+            </p>
+            <ul class="feature-card__list" aria-label="Points clés">
+              <li>
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                Présent, absent, malade
+              </li>
+              <li>
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                Note d'application 1 à 5
+              </li>
+              <li>
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                Niveau par matière
+              </li>
+              <li>
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                Observations libres
+              </li>
+            </ul>
+          </article>
+
+          <article class="feature-card feature-card--accent reveal" aria-labelledby="feat2-title">
+            <div class="feature-card__icon feature-card__icon--green">
+              <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
+            </div>
+            <h3 class="feature-card__title" id="feat2-title">
+              Tableau de bord parent
+            </h3>
+            <p class="feature-card__desc">
+              Les parents voient en temps réel le rapport de leur enfant.
+              Si un parent a plusieurs enfants dans différentes écoles,
+              il gère tout depuis un seul compte.
+            </p>
+            <ul class="feature-card__list">
+              <li>
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                Multi-enfants, multi-écoles
+              </li>
+              <li>
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                Notification maladie côté parent
+              </li>
+              <li>
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                Historique complet des rapports
+              </li>
+              <li>
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                Sélection de rapport par date
+              </li>
+            </ul>
+          </article>
+
+          <article class="feature-card reveal" aria-labelledby="feat3-title">
+            <div class="feature-card__icon feature-card__icon--gold">
+              <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+            </div>
+            <h3 class="feature-card__title" id="feat3-title">
+              Communication directe
+            </h3>
+            <p class="feature-card__desc">
+              Un bouton suffit pour ouvrir WhatsApp et dialoguer avec
+              l'enseignant ou le parent. Le message est pré-rempli avec
+              le contexte du rapport.
+            </p>
+            <ul class="feature-card__list">
+              <li>
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                Bouton WhatsApp enseignant ↔ parent
+              </li>
+              <li>
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                Message pré-rempli automatique
+              </li>
+              <li>
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                Aucune application à installer
+              </li>
+              <li>
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                Disponible aussi sur l'app mobile
+              </li>
+            </ul>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── STATISTIQUES ── -->
+    <section class="section stats" id="stats" aria-labelledby="stats-title">
+      <div class="stats__bg" aria-hidden="true"></div>
+      <div class="section__inner">
+
+        <header class="section__header">
+          <p class="section__eyebrow section__eyebrow--light reveal">
+            <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+            IMB en chiffres
+          </p>
+          <h2 class="section__title section__title--light reveal" id="stats-title">
+            Des résultats réels,<br />
+            <span class="text-gold">mesurables.</span>
+          </h2>
+          <p class="section__desc section__desc--light reveal">
+            Ces chiffres sont mis à jour en temps réel depuis notre base de données.
+          </p>
+        </header>
+
+        <div class="stats__grid" role="list" aria-label="Statistiques IMB">
+
+          <article class="stat-block reveal" role="listitem">
+            <div class="stat-block__icon">
+              <i class="fa-solid fa-user-graduate" aria-hidden="true"></i>
+            </div>
+            <p class="stat-block__number" id="stat-students" aria-live="polite">
+              <span class="stat-counter" data-target="0">0</span>
+            </p>
+            <p class="stat-block__label">Élèves suivis</p>
+            <p class="stat-block__sub">dans toutes les écoles partenaires</p>
+          </article>
+
+          <article class="stat-block stat-block--accent reveal" role="listitem">
+            <div class="stat-block__icon">
+              <i class="fa-solid fa-users" aria-hidden="true"></i>
+            </div>
+            <p class="stat-block__number" id="stat-parents" aria-live="polite">
+              <span class="stat-counter" data-target="0">0</span>
+            </p>
+            <p class="stat-block__label">Parents connectés</p>
+            <p class="stat-block__sub">suivent leurs enfants en temps réel</p>
+          </article>
+
+          <article class="stat-block reveal" role="listitem">
+            <div class="stat-block__icon">
+              <i class="fa-solid fa-school" aria-hidden="true"></i>
+            </div>
+            <p class="stat-block__number" id="stat-schools" aria-live="polite">
+              <span class="stat-counter" data-target="0">0</span>
+            </p>
+            <p class="stat-block__label">Écoles partenaires</p>
+            <p class="stat-block__sub">font confiance à IMB</p>
+          </article>
+
+          <article class="stat-block reveal" role="listitem">
+            <div class="stat-block__icon">
+              <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+            </div>
+            <p class="stat-block__number">
+              <span class="stat-counter" data-target="0">0</span>
+            </p>
+            <p class="stat-block__label">Rapports générés</p>
+            <p class="stat-block__sub">depuis le lancement de la plateforme</p>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ── POUR LES PARENTS ── -->
+    <section class="section for-parents" id="pour-parents" aria-labelledby="parents-title">
+      <div class="section__inner">
+        <div class="audience-grid audience-grid--reverse">
+
+          <!-- Mockup app mobile -->
+          <div class="phone-mockup reveal" aria-hidden="true">
+            <div class="phone-mockup__frame">
+              <div class="phone-mockup__screen">
+
+                <!-- Header app -->
+                <div class="app-header">
+                  <div class="app-header__left">
+                    <div class="app-avatar app-avatar--sm">FN</div>
+                    <div>
+                      <p class="app-header__name">Fatou Ndiaye</p>
+                      <p class="app-header__sub">3 enfants suivis</p>
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-bell app-header__icon"></i>
+                </div>
+
+                <!-- Cartes enfants -->
+                <div class="app-children">
+
+                  <div class="app-child-card app-child-card--active">
+                    <div class="app-child-card__top">
+                      <div class="app-avatar app-avatar--blue">LN</div>
+                      <div>
+                        <p class="app-child-card__name">Lucas Ndiaye</p>
+                        <p class="app-child-card__class">CM2 B · École Les Acacias</p>
+                      </div>
+                      <span class="app-badge app-badge--green">
+                        <i class="fa-solid fa-circle"></i> Présent
+                      </span>
+                    </div>
+                    <div class="app-child-card__stats">
+                      <div class="app-mini-stat">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>Math</span>
+                        <strong class="text-green">Excellent</strong>
+                      </div>
+                      <div class="app-mini-stat">
+                        <i class="fa-solid fa-book"></i>
+                        <span>Français</span>
+                        <strong class="text-orange">Moyen</strong>
+                      </div>
+                      <div class="app-mini-stat">
+                        <i class="fa-solid fa-star"></i>
+                        <span>Application</span>
+                        <strong class="text-blue">4/5</strong>
+                      </div>
+                    </div>
+                    <button class="app-wa-btn">
+                      <i class="fa-brands fa-whatsapp"></i>
+                      Contacter l'enseignant
+                    </button>
+                  </div>
+
+                  <div class="app-child-card">
+                    <div class="app-child-card__top">
+                      <div class="app-avatar app-avatar--green">AN</div>
+                      <div>
+                        <p class="app-child-card__name">Amira Ndiaye</p>
+                        <p class="app-child-card__class">CE2 A · École Saint-Joseph</p>
+                      </div>
+                      <span class="app-badge app-badge--orange">
+                        <i class="fa-solid fa-circle"></i> Malade
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+            <!-- Reflet -->
+            <div class="phone-mockup__glow"></div>
+          </div>
+
+          <!-- Contenu -->
+          <div class="audience-content">
+            <p class="section__eyebrow reveal">
+              <i class="fa-solid fa-heart" aria-hidden="true"></i>
+              Pour les parents
+            </p>
+            <h2 class="section__title reveal" id="parents-title">
+              Votre enfant à l'école,<br />
+              <span class="text-accent">vous restez proches.</span>
+            </h2>
+            <p class="section__desc reveal">
+              Fini les réunions pour apprendre que votre enfant était en
+              difficulté depuis des semaines. Avec IMB, vous savez chaque jour
+              ce qui se passe — depuis votre téléphone.
+            </p>
+
+            <ul class="audience-list reveal">
+              <li class="audience-list__item">
+                <span class="audience-list__icon audience-list__icon--green">
+                  <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+                </span>
+                <div>
+                  <p class="audience-list__title">Présence en temps réel</p>
+                  <p class="audience-list__desc">
+                    Vous savez si votre enfant est présent, absent ou malade
+                    dès le début de la journée.
+                  </p>
+                </div>
+              </li>
+              <li class="audience-list__item">
+                <span class="audience-list__icon audience-list__icon--blue">
+                  <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                </span>
+                <div>
+                  <p class="audience-list__title">Résultats par matière</p>
+                  <p class="audience-list__desc">
+                    Mathématiques, français, sciences — vous voyez exactement
+                    où votre enfant est fort et où il a besoin d'aide.
+                  </p>
+                </div>
+              </li>
+              <li class="audience-list__item">
+                <span class="audience-list__icon audience-list__icon--orange">
+                  <i class="fa-solid fa-face-thermometer" aria-hidden="true"></i>
+                </span>
+                <div>
+                  <p class="audience-list__title">Signaler une maladie</p>
+                  <p class="audience-list__desc">
+                    Votre enfant est malade à la maison ? Signalez-le
+                    directement depuis l'application — l'enseignant est
+                    immédiatement informé.
+                  </p>
+                </div>
+              </li>
+              <li class="audience-list__item">
+                <span class="audience-list__icon audience-list__icon--accent">
+                  <i class="fa-solid fa-children" aria-hidden="true"></i>
+                </span>
+                <div>
+                  <p class="audience-list__title">Plusieurs enfants, une seule app</p>
+                  <p class="audience-list__desc">
+                    Même si vos enfants sont dans des écoles différentes,
+                    tout est regroupé dans votre compte IMB.
+                  </p>
+                </div>
+              </li>
+            </ul>
+
+            <div class="download-btns reveal">
+              <p class="download-btns__label">
+                <i class="fa-solid fa-mobile-screen" aria-hidden="true"></i>
+                Télécharger l'application
+              </p>
+              <div class="download-btns__row">
+                <a
+                  class="store-btn"
+                  href="#"
+                  aria-label="Télécharger IMB sur Google Play"
+                >
+                  <i class="fa-brands fa-google-play" aria-hidden="true"></i>
+                  <div>
+                    <span class="store-btn__sub">Disponible sur</span>
+                    <span class="store-btn__name">Google Play</span>
+                  </div>
+                </a>
+                <a
+                  class="store-btn"
+                  href="#"
+                  aria-label="Télécharger IMB sur l'App Store"
+                >
+                  <i class="fa-brands fa-apple" aria-hidden="true"></i>
+                  <div>
+                    <span class="store-btn__sub">Disponible sur</span>
+                    <span class="store-btn__name">App Store</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── POUR LES ÉCOLES ── -->
+    <section class="section for-schools" id="pour-ecoles" aria-labelledby="schools-title">
+      <div class="section__inner">
+        <div class="audience-grid">
+
+          <!-- Contenu -->
+          <div class="audience-content">
+            <p class="section__eyebrow reveal">
+              <i class="fa-solid fa-school" aria-hidden="true"></i>
+              Pour les écoles
+            </p>
+            <h2 class="section__title reveal" id="schools-title">
+              Modernisez votre école,<br />
+              <span class="text-accent">fidélisez vos familles.</span>
+            </h2>
+            <p class="section__desc reveal">
+              Les parents choisissent les écoles qui communiquent bien.
+              IMB vous donne les outils pour être l'école transparente
+              que chaque famille recherche.
+            </p>
+
+            <ul class="audience-list reveal">
+              <li class="audience-list__item">
+                <span class="audience-list__icon audience-list__icon--blue">
+                  <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                </span>
+                <div>
+                  <p class="audience-list__title">Vous gardez le contrôle</p>
+                  <p class="audience-list__desc">
+                    C'est vous qui créez les comptes enseignants et parents.
+                    Vous décidez qui a accès à quoi dans votre établissement.
+                  </p>
+                </div>
+              </li>
+              <li class="audience-list__item">
+                <span class="audience-list__icon audience-list__icon--green">
+                  <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+                </span>
+                <div>
+                  <p class="audience-list__title">Déploiement en moins d'une heure</p>
+                  <p class="audience-list__desc">
+                    Pas de serveur à installer, pas de technicien nécessaire.
+                    Vous créez votre école sur IMB et commencez immédiatement.
+                  </p>
+                </div>
+              </li>
+              <li class="audience-list__item">
+                <span class="audience-list__icon audience-list__icon--orange">
+                  <i class="fa-solid fa-building-columns" aria-hidden="true"></i>
+                </span>
+                <div>
+                  <p class="audience-list__title">Multi-établissements</p>
+                  <p class="audience-list__desc">
+                    Vous gérez un réseau d'écoles ? IMB vous permet de
+                    superviser tous vos établissements depuis un seul tableau
+                    de bord administrateur.
+                  </p>
+                </div>
+              </li>
+              <li class="audience-list__item">
+                <span class="audience-list__icon audience-list__icon--accent">
+                  <i class="fa-solid fa-headset" aria-hidden="true"></i>
+                </span>
+                <div>
+                  <p class="audience-list__title">Accompagnement personnalisé</p>
+                  <p class="audience-list__desc">
+                    Notre équipe vous accompagne à chaque étape — de la
+                    configuration à la formation de vos enseignants.
+                  </p>
+                </div>
+              </li>
+            </ul>
+
+            <div class="cta-school-row reveal">
+              <a class="btn btn--accent btn--lg" href="#contact" aria-label="Demander une démonstration gratuite">
+                <i class="fa-solid fa-rocket" aria-hidden="true"></i>
+                Demander une démo gratuite
+              </a>
+              <p class="cta-school-row__note">
+                <i class="fa-solid fa-clock" aria-hidden="true"></i>
+                Réponse sous 24 heures
+              </p>
+            </div>
+          </div>
+
+          <!-- Dashboard admin preview -->
+          <div class="admin-preview reveal" aria-hidden="true">
+
+            <!-- Mini sidebar -->
+            <div class="admin-preview__sidebar">
+              <p class="admin-preview__brand">IMB</p>
+              <ul class="admin-preview__nav">
+                <li class="admin-preview__nav-item admin-preview__nav-item--active">
+                  <i class="fa-solid fa-gauge"></i> Dashboard
+                </li>
+                <li class="admin-preview__nav-item">
+                  <i class="fa-solid fa-chalkboard-user"></i> Enseignants
+                </li>
+                <li class="admin-preview__nav-item">
+                  <i class="fa-solid fa-users"></i> Parents
+                </li>
+                <li class="admin-preview__nav-item">
+                  <i class="fa-solid fa-user-graduate"></i> Élèves
+                </li>
+                <li class="admin-preview__nav-item">
+                  <i class="fa-solid fa-school"></i> Classes
+                </li>
+              </ul>
+            </div>
+
+            <!-- Contenu dashboard -->
+            <div class="admin-preview__main">
+
+              <div class="admin-preview__kpis">
+                <div class="admin-kpi">
+                  <i class="fa-solid fa-chalkboard-user"></i>
+                  <p class="admin-kpi__val">12</p>
+                  <p class="admin-kpi__label">Enseignants</p>
+                </div>
+                <div class="admin-kpi admin-kpi--accent">
+                  <i class="fa-solid fa-users"></i>
+                  <p class="admin-kpi__val">38</p>
+                  <p class="admin-kpi__label">Parents</p>
+                </div>
+                <div class="admin-kpi">
+                  <i class="fa-solid fa-user-graduate"></i>
+                  <p class="admin-kpi__val">104</p>
+                  <p class="admin-kpi__label">Élèves</p>
+                </div>
+              </div>
+
+              <div class="admin-preview__table">
+                <div class="admin-table-header">
+                  <p class="admin-table-title">Enseignants récents</p>
+                  <span class="admin-table-badge">Actif</span>
+                </div>
+                <ul class="admin-table-rows">
+                  <li class="admin-table-row">
+                    <span class="admin-row-avatar" style="background:#DBEAFE;color:#1D4ED8;">AD</span>
+                    <div>
+                      <p class="admin-row-name">Aminata Diallo</p>
+                      <p class="admin-row-class">CM2 B</p>
+                    </div>
+                    <span class="admin-row-status">
+                      <i class="fa-solid fa-circle"></i> Actif
+                    </span>
+                  </li>
+                  <li class="admin-table-row">
+                    <span class="admin-row-avatar" style="background:#D1FAE5;color:#065F46;">JT</span>
+                    <div>
+                      <p class="admin-row-name">Jean-Baptiste Traoré</p>
+                      <p class="admin-row-class">CM1 A</p>
+                    </div>
+                    <span class="admin-row-status">
+                      <i class="fa-solid fa-circle"></i> Actif
+                    </span>
+                  </li>
+                  <li class="admin-table-row">
+                    <span class="admin-row-avatar" style="background:#EDE9FE;color:#5B21B6;">RB</span>
+                    <div>
+                      <p class="admin-row-name">Rokia Bah</p>
+                      <p class="admin-row-class">CE2 A</p>
+                    </div>
+                    <span class="admin-row-status">
+                      <i class="fa-solid fa-circle"></i> Actif
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CONTACT ── -->
+    <section class="section contact" id="contact" aria-labelledby="contact-title">
+      <div class="section__inner">
+
+        <div class="contact__grid">
+
+          <!-- Infos -->
+          <div class="contact__info">
+            <p class="section__eyebrow reveal">
+              <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+              Nous contacter
+            </p>
+            <h2 class="section__title reveal" id="contact-title">
+              Prêt à transformer<br />
+              <span class="text-accent">votre école ?</span>
+            </h2>
+            <p class="section__desc reveal">
+              Remplissez le formulaire et nous vous répondons sous 24 heures
+              pour organiser une démonstration gratuite adaptée à votre établissement.
+            </p>
+
+            <ul class="contact__details reveal">
+              <li class="contact__detail">
+                <span class="contact__detail-icon">
+                  <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                </span>
+                <div>
+                  <p class="contact__detail-label">Email</p>
+                  <a class="contact__detail-value" href="mailto:josmakengim@gmail.com">
+                    josmakengim@gmail.com
+                  </a>
+                </div>
+              </li>
+              <li class="contact__detail">
+                <span class="contact__detail-icon">
+                  <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                </span>
+                <div>
+                  <p class="contact__detail-label">WhatsApp</p>
+                  <a class="contact__detail-value" href="https://wa.me/message/VOTRENUMERO" target="_blank" rel="noopener noreferrer">
+                    Nous écrire sur WhatsApp
+                  </a>
+                </div>
+              </li>
+              <li class="contact__detail">
+                <span class="contact__detail-icon">
+                  <i class="fa-solid fa-globe" aria-hidden="true"></i>
+                </span>
+                <div>
+                  <p class="contact__detail-label">Disponibilité</p>
+                  <p class="contact__detail-value">Lun — Ven, 8h — 18h (WAT)</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Formulaire -->
+          <div class="contact__form-wrap reveal">
+            <form
+              class="contact__form"
+              id="contact-form"
+              novalidate
+              aria-labelledby="contact-title"
+            >
+              <!-- Message de succès -->
+              <div
+                class="form-success"
+                id="form-success"
+                role="status"
+                aria-live="polite"
+                hidden
+              >
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                <div>
+                  <p class="form-success__title">Message envoyé !</p>
+                  <p class="form-success__desc">
+                    Nous vous répondons sous 24 h à l'adresse indiquée.
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="cf-firstname">
+                    Prénom <abbr title="Obligatoire">*</abbr>
+                  </label>
+                  <div class="form-input-wrap">
+                    <i class="fa-solid fa-user form-input-icon" aria-hidden="true"></i>
+                    <input
+                      class="form-input"
+                      type="text"
+                      id="cf-firstname"
+                      name="firstname"
+                      placeholder="Jean"
+                      autocomplete="given-name"
+                      aria-required="true"
+                    />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="cf-lastname">
+                    Nom <abbr title="Obligatoire">*</abbr>
+                  </label>
+                  <div class="form-input-wrap">
+                    <i class="fa-solid fa-user form-input-icon" aria-hidden="true"></i>
+                    <input
+                      class="form-input"
+                      type="text"
+                      id="cf-lastname"
+                      name="lastname"
+                      placeholder="Dupont"
+                      autocomplete="family-name"
+                      aria-required="true"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="cf-email">
+                  Adresse email <abbr title="Obligatoire">*</abbr>
+                </label>
+                <div class="form-input-wrap">
+                  <i class="fa-solid fa-envelope form-input-icon" aria-hidden="true"></i>
+                  <input
+                    class="form-input"
+                    type="email"
+                    id="cf-email"
+                    name="email"
+                    placeholder="vous@ecole.com"
+                    autocomplete="email"
+                    aria-required="true"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="cf-school">
+                  Nom de l'établissement <abbr title="Obligatoire">*</abbr>
+                </label>
+                <div class="form-input-wrap">
+                  <i class="fa-solid fa-school form-input-icon" aria-hidden="true"></i>
+                  <input
+                    class="form-input"
+                    type="text"
+                    id="cf-school"
+                    name="school"
+                    placeholder="École primaire Les Acacias"
+                    autocomplete="organization"
+                    aria-required="true"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="cf-role">
+                  Votre rôle <abbr title="Obligatoire">*</abbr>
+                </label>
+                <div class="form-input-wrap">
+                  <i class="fa-solid fa-briefcase form-input-icon" aria-hidden="true"></i>
+                  <select
+                    class="form-input form-select"
+                    id="cf-role"
+                    name="role"
+                    aria-required="true"
+                  >
+                    <option value="" disabled selected>Sélectionner…</option>
+                    <option value="director">Directeur / Directrice</option>
+                    <option value="admin">Administrateur scolaire</option>
+                    <option value="teacher">Enseignant(e)</option>
+                    <option value="parent">Parent d'élève</option>
+                    <option value="other">Autre</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="cf-phone">
+                  Numéro WhatsApp
+                </label>
+                <div class="form-input-wrap">
+                  <i class="fa-brands fa-whatsapp form-input-icon" aria-hidden="true"></i>
+                  <input
+                    class="form-input"
+                    type="tel"
+                    id="cf-phone"
+                    name="phone"
+                    placeholder="+243 99 000 00 00"
+                    autocomplete="tel"
+                    aria-describedby="phone-hint"
+                  />
+                </div>
+                <small class="form-hint" id="phone-hint">
+                  Pour vous répondre rapidement sur WhatsApp.
+                </small>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="cf-message">
+                  Message <abbr title="Obligatoire">*</abbr>
+                </label>
+                <textarea
+                  class="form-input form-textarea"
+                  id="cf-message"
+                  name="message"
+                  placeholder="Décrivez votre école, le nombre d'élèves, vos besoins…"
+                  aria-required="true"
+                  rows="4"
+                  maxlength="1000"
+                ></textarea>
+                <div class="form-char-count">
+                  <span id="char-count">0</span> / 1000
+                </div>
+              </div>
+
+              <!-- Erreur globale -->
+              <div
+                class="form-error"
+                id="form-error"
+                role="alert"
+                aria-live="assertive"
+                hidden
+              >
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                <span id="form-error-msg">Veuillez remplir tous les champs obligatoires.</span>
+              </div>
+
+              <button
+                class="btn btn--accent btn--full"
+                type="submit"
+                id="form-submit"
+                aria-label="Envoyer le message à IMB"
+              >
+                <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                Envoyer le message
+              </button>
+
+              <p class="form-privacy">
+                <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                Vos données sont confidentielles et ne seront jamais partagées.
+              </p>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════
+       FOOTER
+  ═══════════════════════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer__inner">
+
+      <div class="footer__brand">
+        <a class="footer__logo" href="#" aria-label="IMB — Retour en haut">
+          <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+          <span>IMB</span>
+        </a>
+        <p class="footer__tagline">Intelligence Mobile pour l'École</p>
+        <p class="footer__desc">
+          La plateforme qui connecte enseignants et parents<br />
+          pour une éducation transparente en Afrique.
+        </p>
+      </div>
+
+      <nav class="footer__nav" aria-label="Navigation pied de page">
+        <p class="footer__nav-title">Plateforme</p>
+        <ul>
+          <li><a class="footer__nav-link" href="#features">Fonctionnalités</a></li>
+          <li><a class="footer__nav-link" href="#pour-parents">Pour les parents</a></li>
+          <li><a class="footer__nav-link" href="#pour-ecoles">Pour les écoles</a></li>
+          <li><a class="footer__nav-link" href="#stats">Statistiques</a></li>
+          <li><a class="footer__nav-link" href="pages/login.html">
+            <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
+            Espace Admin
+          </a></li>
+        </ul>
+      </nav>
+
+      <nav class="footer__nav" aria-label="Télécharger l'application">
+        <p class="footer__nav-title">Application mobile</p>
+        <ul>
+          <li>
+            <a class="footer__nav-link footer__store-link" href="#" aria-label="IMB sur Google Play">
+              <i class="fa-brands fa-google-play" aria-hidden="true"></i>
+              Google Play
+            </a>
+          </li>
+          <li>
+            <a class="footer__nav-link footer__store-link" href="#" aria-label="IMB sur App Store">
+              <i class="fa-brands fa-apple" aria-hidden="true"></i>
+              App Store
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <nav class="footer__nav" aria-label="Contact pied de page">
+        <p class="footer__nav-title">Contact</p>
+        <ul>
+          <li>
+            <a class="footer__nav-link" href="mailto:josmakengim@gmail.com">
+              <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+              josmakengim@gmail.com
+            </a>
+          </li>
+          <li>
+            <a class="footer__nav-link" href="https://wa.me/VOTRENUMERO" target="_blank" rel="noopener noreferrer">
+              <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+              WhatsApp
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+    </div>
+
+    <div class="footer__bottom">
+      <p>© <span id="footer-year"></span> IMB — Tous droits réservés.</p>
+      <p>Conçu avec <i class="fa-solid fa-heart" aria-hidden="true"></i> pour l'éducation africaine</p>
+    </div>
+  </footer>
+
+  <!-- EmailJS SDK — Envoi de formulaire vers Gmail -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    // Initialiser EmailJS avec votre Public Key
+    // Obtenir sur https://emailjs.com → Account → API Keys
+    if (typeof emailjs !== 'undefined') {
+      emailjs.init({ publicKey: 'VOTRE_PUBLIC_KEY' });
+    }
+  </script>
+
+  <script src="assets/js/main.js" type="module"></script>
+
+</body>
+</html>

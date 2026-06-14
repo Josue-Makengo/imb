@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="IMB — Connexion à l'espace administrateur." />
+  <meta name="theme-color" content="#0B1F3A" />
+  <title>IMB — Connexion</title>
+
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    crossorigin="anonymous" />
+
+  <link rel="stylesheet" href="../assets/css/variables.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/login.css" />
+</head>
+
+<body>
+
+  <a class="skip-link" href="#main">Passer au contenu principal</a>
+
+  <!-- ═══════════════════════════
+       PANNEAU GAUCHE — Branding
+  ═══════════════════════════ -->
+  <aside class="login-brand" aria-hidden="true">
+
+    <div class="login-brand__logo">
+      <div class="login-brand__logo-icon">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <span class="login-brand__name">IMB</span>
+    </div>
+
+    <div class="login-brand__main">
+      <p class="login-brand__eyebrow">Espace Administrateur</p>
+      <h1 class="login-brand__title">
+        Gérez votre école<br />
+        <span>en toute simplicité.</span>
+      </h1>
+      <p class="login-brand__desc">
+        Créez des comptes enseignants et parents, suivez les élèves
+        et supervisez les rapports journaliers depuis votre tableau de bord.
+      </p>
+
+      <ul class="login-brand__features">
+        <li class="login-brand__feature">
+          <span class="login-brand__feature-icon">
+            <i class="fa-solid fa-chalkboard-user"></i>
+          </span>
+          Créer et gérer les comptes enseignants
+        </li>
+        <li class="login-brand__feature">
+          <span class="login-brand__feature-icon">
+            <i class="fa-solid fa-users"></i>
+          </span>
+          Associer les parents à leurs enfants
+        </li>
+        <li class="login-brand__feature">
+          <span class="login-brand__feature-icon">
+            <i class="fa-solid fa-rotate"></i>
+          </span>
+          Synchronisation en temps réel avec Firebase
+        </li>
+        <li class="login-brand__feature">
+          <span class="login-brand__feature-icon">
+            <i class="fa-brands fa-whatsapp"></i>
+          </span>
+          Communication directe via WhatsApp
+        </li>
+      </ul>
+    </div>
+
+    <p class="login-brand__footer">
+      © <span id="footer-year"></span> IMB — Intelligence Mobile pour l'École
+    </p>
+
+  </aside>
+
+  <!-- ═══════════════════════════
+       PANNEAU DROIT — Formulaire
+  ═══════════════════════════ -->
+  <main class="login-form-panel" id="main">
+
+    <div class="login-card">
+
+      <h2 class="login-card__title">Connexion</h2>
+      <p class="login-card__sub">
+        Entrez vos identifiants administrateur pour accéder au tableau de bord IMB.
+      </p>
+
+      <!-- Message d'erreur -->
+      <div
+        class="login-error"
+        id="login-error"
+        role="alert"
+        aria-live="assertive"
+        data-visible="false"
+      >
+        <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+        <span id="login-error-msg"></span>
+      </div>
+
+      <!-- Message de succès -->
+      <div
+        class="login-success"
+        id="login-success"
+        role="status"
+        aria-live="polite"
+        data-visible="false"
+      >
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        <span>Connexion réussie !</span>
+      </div>
+
+      <!-- Formulaire -->
+      <form id="login-form" novalidate>
+
+        <div class="form-group">
+          <label class="form-label" for="login-email">
+            Adresse email
+            <abbr title="Obligatoire">*</abbr>
+          </label>
+          <div class="form-field">
+            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+            <input
+              class="form-input"
+              type="email"
+              id="login-email"
+              name="email"
+              autocomplete="email"
+              placeholder="admin@imb.cd"
+              aria-required="true"
+              aria-describedby="email-hint"
+            />
+          </div>
+          <small class="form-hint" id="email-hint">
+            L'email avec lequel vous êtes enregistré dans Firebase.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-password">
+            Mot de passe
+            <abbr title="Obligatoire">*</abbr>
+          </label>
+          <div class="form-field password-field">
+            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+            <input
+              class="form-input"
+              type="password"
+              id="login-password"
+              name="password"
+              autocomplete="current-password"
+              placeholder="••••••••"
+              aria-required="true"
+            />
+            <button
+              class="password-eye"
+              type="button"
+              id="password-eye"
+              aria-label="Afficher le mot de passe"
+            >
+              <i class="fa-solid fa-eye" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <button
+          class="btn btn--accent login-submit"
+          type="submit"
+          id="login-submit"
+          aria-label="Se connecter à IMB"
+        >
+          <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
+          Se connecter
+        </button>
+
+      </form>
+
+      <a class="login-back" href="../index.html" aria-label="Retour au site IMB">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        Retour au site IMB
+      </a>
+
+    </div>
+
+  </main>
+
+  <script type="module" src="../assets/js/login.js"></script>
+
+</body>
+</html>

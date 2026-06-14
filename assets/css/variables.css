@@ -1,0 +1,68 @@
+/* ═══════════════════════════════════════════════════
+   IMB — Design Tokens
+   Source unique de vérité pour couleurs, typo, layout
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  /* ── Couleurs de marque ── */
+  --color-primary:       #0B1F3A;
+  --color-primary-soft:  #132D52;
+  --color-accent:        #00C48C;
+  --color-accent-dim:    #D6F5ED;
+  --color-accent-dark:   #007A58;
+  --color-gold:          #FFB830;
+  --color-gold-dim:      #FFF4D6;
+
+  /* ── Surfaces ── */
+  --color-bg:            #F7F9FC;
+  --color-surface:       #FFFFFF;
+  --color-surface-soft:  #F0F4F8;
+
+  /* ── Sémantiques ── */
+  --color-success:       #10B981;
+  --color-success-dim:   #D1FAE5;
+  --color-danger:        #EF4444;
+  --color-danger-dim:    #FEE2E2;
+  --color-warning:       #F59E0B;
+  --color-warning-dim:   #FEF3C7;
+  --color-info:          #2563EB;
+  --color-info-dim:      #DBEAFE;
+
+  /* ── Texte & bordures ── */
+  --color-text:          #0B1F3A;
+  --color-text-muted:    #64748B;
+  --color-border:        #E2E8F0;
+  --color-border-soft:   #F1F5F9;
+
+  /* ── Typographie ── */
+  --font-display: 'Clash Display', 'Inter', sans-serif;
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+
+  /* ── Rayons ── */
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-pill: 9999px;
+
+  /* ── Ombres ── */
+  --shadow-xs:   0 1px 3px  rgba(11,31,58,.06);
+  --shadow-sm:   0 2px 8px  rgba(11,31,58,.08);
+  --shadow-md:   0 4px 20px rgba(11,31,58,.10);
+  --shadow-lg:   0 8px 40px rgba(11,31,58,.13);
+  --shadow-xl:   0 20px 60px rgba(11,31,58,.18);
+  --shadow-focus: 0 0 0 3px rgba(0,196,140,.25);
+
+  /* ── Transitions ── */
+  --ease:        cubic-bezier(.4, 0, .2, 1);
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --duration-fast:   120ms;
+  --duration-normal: 220ms;
+  --duration-slow:   380ms;
+
+  /* ── Layout Admin ── */
+  --sidebar-width:  256px;
+  --topbar-height:  64px;
+  --content-max:    1280px;
+}

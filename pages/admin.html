@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="IMB — Interface Administrateur" />
+  <meta name="theme-color" content="#0B1F3A" />
+  <title>IMB — Administration</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    crossorigin="anonymous" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../assets/css/variables.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Passer au contenu principal</a>
+
+  <div class="app">
+
+    <!-- ═══════════════════════════
+         SIDEBAR
+    ═══════════════════════════ -->
+    <aside
+      class="sidebar"
+      id="sidebar"
+      role="navigation"
+      aria-label="Navigation administrateur"
+      data-open="false"
+    >
+      <header class="sidebar__header">
+        <div class="sidebar__logo" aria-hidden="true">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div>
+          <a class="sidebar__brand" href="../index.html" aria-label="IMB — Retour au site">IMB</a>
+          <p class="sidebar__role">Administrateur</p>
+        </div>
+      </header>
+
+      <nav class="sidebar__nav" aria-label="Menu principal">
+
+        <p class="sidebar__section">Principal</p>
+
+        <button class="nav-item" type="button"
+          data-page="dashboard" aria-current="page"
+          aria-label="Tableau de bord">
+          <i class="fa-solid fa-gauge" aria-hidden="true"></i>
+          Tableau de bord
+        </button>
+
+        <button class="nav-item" type="button"
+          data-page="teachers"
+          aria-label="Gestion des enseignants">
+          <i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>
+          Enseignants
+          <span class="nav-item__badge" id="badge-teachers" aria-label="Nombre d'enseignants">0</span>
+        </button>
+
+        <button class="nav-item" type="button"
+          data-page="parents"
+          aria-label="Gestion des parents">
+          <i class="fa-solid fa-users" aria-hidden="true"></i>
+          Parents
+          <span class="nav-item__badge" id="badge-parents" aria-label="Nombre de parents">0</span>
+        </button>
+
+        <button class="nav-item" type="button"
+          data-page="students"
+          aria-label="Gestion des élèves">
+          <i class="fa-solid fa-user-graduate" aria-hidden="true"></i>
+          Élèves
+          <span class="nav-item__badge" id="badge-students" aria-label="Nombre d'élèves">0</span>
+        </button>
+
+        <p class="sidebar__section">Organisation</p>
+
+        <button class="nav-item" type="button"
+          data-page="classes"
+          aria-label="Gestion des classes">
+          <i class="fa-solid fa-school" aria-hidden="true"></i>
+          Classes
+        </button>
+
+        <button class="nav-item" type="button"
+          data-page="reports"
+          aria-label="Rapports scolaires">
+          <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+          Rapports
+        </button>
+
+        <p class="sidebar__section">Système</p>
+
+        <button class="nav-item" type="button"
+          data-page="settings"
+          aria-label="Paramètres de la plateforme">
+          <i class="fa-solid fa-gear" aria-hidden="true"></i>
+          Paramètres
+        </button>
+
+      </nav>
+
+      <footer class="sidebar__footer">
+        <div class="sidebar__user">
+          <div class="sidebar__avatar" id="sidebar-avatar" aria-hidden="true">SA</div>
+          <div>
+            <p class="sidebar__user-name" id="sidebar-name">Chargement…</p>
+            <p class="sidebar__user-email" id="sidebar-email"></p>
+          </div>
+          <button class="sidebar__logout" type="button"
+            id="btn-logout" aria-label="Se déconnecter">
+            <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+          </button>
+        </div>
+      </footer>
+    </aside>
+
+    <!-- Overlay sidebar mobile -->
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <!-- ═══════════════════════════
+         LAYOUT PRINCIPAL
+    ═══════════════════════════ -->
+    <div class="main-layout">
+
+      <!-- TOPBAR -->
+      <header class="topbar" role="banner">
+        <button class="topbar__burger" type="button"
+          id="burger"
+          aria-label="Ouvrir le menu de navigation"
+          aria-expanded="false"
+          aria-controls="sidebar">
+          <span class="topbar__burger-bar"></span>
+          <span class="topbar__burger-bar"></span>
+          <span class="topbar__burger-bar"></span>
+        </button>
+
+        <p class="topbar__page-title">
+          IMB <span id="topbar-subtitle">/ Tableau de bord</span>
+        </p>
+
+        <div class="topbar__search" role="search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input
+            type="search"
+            id="global-search"
+            placeholder="Rechercher un utilisateur…"
+            aria-label="Rechercher dans IMB"
+          />
+        </div>
+
+        <div class="topbar__actions">
+          <button class="topbar__icon-btn" type="button"
+            aria-label="Notifications">
+            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+            <span class="topbar__notif-dot" aria-hidden="true"></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- CONTENU PRINCIPAL -->
+      <main id="main">
+
+        <!-- ═══ PAGE : DASHBOARD ═══ -->
+        <section class="page" id="page-dashboard"
+          data-active="true"
+          aria-labelledby="dash-title">
+
+          <div class="page-header">
+            <div>
+              <p class="page-header__eyebrow">Vue globale</p>
+              <h1 class="page-header__title" id="dash-title">Tableau de bord</h1>
+              <p class="page-header__sub">Bienvenue — voici l'état de votre établissement.</p>
+            </div>
+            <div class="page-header__actions">
+              <button class="btn btn--accent" type="button"
+                id="btn-create-main"
+                aria-label="Créer un nouveau compte">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                Créer un compte
+              </button>
+            </div>
+          </div>
+
+          <!-- KPIs -->
+          <div class="kpi-grid" role="list" aria-label="Indicateurs clés">
+
+            <article class="kpi" role="listitem" style="--kpi-accent: var(--color-info);">
+              <div class="kpi__icon" style="background-color:var(--color-info-dim);color:var(--color-info);">
+                <i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>
+              </div>
+              <p class="kpi__value" id="kpi-teachers">0</p>
+              <p class="kpi__label">Enseignants actifs</p>
+              <p class="kpi__trend kpi__trend--up">
+                <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i>
+                Mis à jour en temps réel
+              </p>
+            </article>
+
+            <article class="kpi" role="listitem" style="--kpi-accent: var(--color-success);">
+              <div class="kpi__icon" style="background-color:var(--color-success-dim);color:var(--color-success);">
+                <i class="fa-solid fa-users" aria-hidden="true"></i>
+              </div>
+              <p class="kpi__value" id="kpi-parents">0</p>
+              <p class="kpi__label">Parents inscrits</p>
+              <p class="kpi__trend kpi__trend--up">
+                <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i>
+                Mis à jour en temps réel
+              </p>
+            </article>
+
+            <article class="kpi" role="listitem" style="--kpi-accent: var(--color-accent);">
+              <div class="kpi__icon" style="background-color:var(--color-accent-dim);color:var(--color-accent);">
+                <i class="fa-solid fa-user-graduate" aria-hidden="true"></i>
+              </div>
+              <p class="kpi__value" id="kpi-students">0</p>
+              <p class="kpi__label">Élèves enregistrés</p>
+              <p class="kpi__trend kpi__trend--up">
+                <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i>
+                Mis à jour en temps réel
+              </p>
+            </article>
+
+            <article class="kpi" role="listitem" style="--kpi-accent: var(--color-gold);">
+              <div class="kpi__icon" style="background-color:var(--color-gold-dim);color:var(--color-gold);">
+                <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+              </div>
+              <p class="kpi__value" id="kpi-reports">0</p>
+              <p class="kpi__label">Rapports générés</p>
+              <p class="kpi__trend kpi__trend--up">
+                <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i>
+                Total depuis le début
+              </p>
+            </article>
+
+          </div>
+
+          <!-- Grid dashboard -->
+          <div class="dashboard-grid">
+
+            <!-- Activité récente -->
+            <section class="widget" aria-labelledby="feed-title">
+              <div class="widget__header">
+                <h2 class="widget__title" id="feed-title">
+                  <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+                  Activité récente
+                </h2>
+              </div>
+              <ol class="widget__body" id="activity-feed"
+                aria-label="Journal d'activité" aria-live="polite">
+                <!-- Rempli par JS -->
+              </ol>
+            </section>
+
+            <!-- Stats rapides -->
+            <aside aria-label="Statistiques rapides">
+              <section class="widget" aria-labelledby="qstats-title">
+                <div class="widget__header">
+                  <h2 class="widget__title" id="qstats-title">
+                    <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+                    Taux d'activation
+                  </h2>
+                </div>
+                <div class="stats-list">
+                  <div class="stats-row">
+                    <span class="stats-row__label">Comptes actifs</span>
+                    <span class="stats-row__value" id="stat-active">—</span>
+                  </div>
+                  <div class="stats-row">
+                    <span class="stats-row__label">Comptes inactifs</span>
+                    <span class="stats-row__value" id="stat-inactive">—</span>
+                  </div>
+                  <div class="stats-row">
+                    <span class="stats-row__label">Total</span>
+                    <span class="stats-row__value" id="stat-total">—</span>
+                  </div>
+                </div>
+                <div class="progress-bar" role="progressbar"
+                  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                  aria-label="Taux d'activation">
+                  <div class="progress-bar__fill" id="activation-bar" style="inline-size:0%;"></div>
+                </div>
+                <p style="font-size:.74rem;color:var(--color-text-muted);padding-inline:1.4rem;padding-block-end:.8rem;">
+                  <span id="activation-pct">0</span>% des comptes activés
+                </p>
+              </section>
+            </aside>
+
+          </div>
+        </section>
+
+        <!-- ═══ PAGE : ENSEIGNANTS ═══ -->
+        <section class="page" id="page-teachers"
+          data-active="false"
+          aria-labelledby="teachers-title">
+
+          <div class="page-header">
+            <div>
+              <p class="page-header__eyebrow">Gestion</p>
+              <h1 class="page-header__title" id="teachers-title">Enseignants</h1>
+              <p class="page-header__sub" id="teachers-count">0 enseignant</p>
+            </div>
+            <div class="page-header__actions">
+              <button class="btn btn--outline btn--sm" type="button"
+                id="btn-export-teachers" aria-label="Exporter la liste">
+                <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
+                Exporter
+              </button>
+              <button class="btn btn--accent" type="button"
+                id="btn-add-teacher" aria-label="Ajouter un enseignant">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                Ajouter
+              </button>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-card__header">
+              <div>
+                <p class="table-card__title">Liste des enseignants</p>
+                <p class="table-card__sub">Tous les comptes enseignants</p>
+              </div>
+              <div class="table-card__filters">
+                <select class="filter-select" id="filter-teacher-status"
+                  aria-label="Filtrer par statut">
+                  <option value="all">Tous les statuts</option>
+                  <option value="active">Actif</option>
+                  <option value="inactive">Inactif</option>
+                </select>
+                <select class="filter-select" id="filter-teacher-class"
+                  aria-label="Filtrer par classe">
+                  <option value="all">Toutes les classes</option>
+                </select>
+              </div>
+            </div>
+            <div role="region" aria-label="Tableau des enseignants" tabindex="0"
+              style="overflow-x:auto;">
+              <table class="data-table" aria-label="Enseignants de l'établissement">
+                <thead>
+                  <tr>
+                    <th scope="col">Enseignant</th>
+                    <th scope="col">Classe</th>
+                    <th scope="col">Élèves</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Créé le</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="teachers-tbody" aria-live="polite">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ PAGE : PARENTS ═══ -->
+        <section class="page" id="page-parents"
+          data-active="false"
+          aria-labelledby="parents-title">
+
+          <div class="page-header">
+            <div>
+              <p class="page-header__eyebrow">Gestion</p>
+              <h1 class="page-header__title" id="parents-title">Parents</h1>
+              <p class="page-header__sub" id="parents-count">0 parent</p>
+            </div>
+            <div class="page-header__actions">
+              <button class="btn btn--outline btn--sm" type="button"
+                aria-label="Exporter la liste">
+                <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
+                Exporter
+              </button>
+              <button class="btn btn--accent" type="button"
+                id="btn-add-parent" aria-label="Ajouter un parent">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                Ajouter
+              </button>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-card__header">
+              <div>
+                <p class="table-card__title">Liste des parents</p>
+                <p class="table-card__sub">Tous les comptes parents</p>
+              </div>
+              <div class="table-card__filters">
+                <select class="filter-select" id="filter-parent-status"
+                  aria-label="Filtrer par statut">
+                  <option value="all">Tous les statuts</option>
+                  <option value="active">Actif</option>
+                  <option value="inactive">Inactif</option>
+                </select>
+              </div>
+            </div>
+            <div role="region" aria-label="Tableau des parents" tabindex="0"
+              style="overflow-x:auto;">
+              <table class="data-table" aria-label="Parents de l'établissement">
+                <thead>
+                  <tr>
+                    <th scope="col">Parent</th>
+                    <th scope="col">ID Unique</th>
+                    <th scope="col">WhatsApp</th>
+                    <th scope="col">Enfants</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="parents-tbody" aria-live="polite">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ PAGE : ÉLÈVES ═══ -->
+        <section class="page" id="page-students"
+          data-active="false"
+          aria-labelledby="students-title">
+
+          <div class="page-header">
+            <div>
+              <p class="page-header__eyebrow">Gestion</p>
+              <h1 class="page-header__title" id="students-title">Élèves</h1>
+              <p class="page-header__sub" id="students-count">0 élève</p>
+            </div>
+            <div class="page-header__actions">
+              <button class="btn btn--accent" type="button"
+                id="btn-add-student" aria-label="Ajouter un élève">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                Ajouter un élève
+              </button>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-card__header">
+              <div>
+                <p class="table-card__title">Liste des élèves</p>
+                <p class="table-card__sub">Tous les élèves enregistrés</p>
+              </div>
+              <div class="table-card__filters">
+                <select class="filter-select" id="filter-student-class"
+                  aria-label="Filtrer par classe">
+                  <option value="all">Toutes les classes</option>
+                </select>
+              </div>
+            </div>
+            <div role="region" aria-label="Tableau des élèves" tabindex="0"
+              style="overflow-x:auto;">
+              <table class="data-table" aria-label="Élèves de l'établissement">
+                <thead>
+                  <tr>
+                    <th scope="col">Élève</th>
+                    <th scope="col">Classe</th>
+                    <th scope="col">Parent ID</th>
+                    <th scope="col">Enseignant</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="students-tbody" aria-live="polite">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ PAGE : CLASSES ═══ -->
+        <section class="page" id="page-classes"
+          data-active="false"
+          aria-labelledby="classes-title">
+          <div class="page-header">
+            <div>
+              <p class="page-header__eyebrow">Organisation</p>
+              <h1 class="page-header__title" id="classes-title">Classes</h1>
+            </div>
+            <button class="btn btn--accent" type="button"
+              id="btn-add-class" aria-label="Créer une classe">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+              Nouvelle classe
+            </button>
+          </div>
+          <div class="table-card">
+            <div class="table-card__header">
+              <p class="table-card__title">Toutes les classes</p>
+            </div>
+            <div id="classes-container" aria-live="polite">
+              <div class="empty-state">
+                <i class="fa-solid fa-school" aria-hidden="true"></i>
+                <p class="empty-state__title">Aucune classe</p>
+                <p class="empty-state__desc">Créez votre première classe pour commencer.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ PAGE : RAPPORTS ═══ -->
+        <section class="page" id="page-reports"
+          data-active="false"
+          aria-labelledby="reports-title">
+          <div class="page-header">
+            <div>
+              <p class="page-header__eyebrow">Suivi</p>
+              <h1 class="page-header__title" id="reports-title">Rapports</h1>
+            </div>
+          </div>
+          <div class="table-card">
+            <div class="table-card__header">
+              <p class="table-card__title">Historique des rapports</p>
+            </div>
+            <div class="empty-state">
+              <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+              <p class="empty-state__title">Module en cours de développement</p>
+              <p class="empty-state__desc">La visualisation complète des rapports sera disponible prochainement.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ PAGE : PARAMÈTRES ═══ -->
+        <section class="page" id="page-settings"
+          data-active="false"
+          aria-labelledby="settings-title">
+          <div class="page-header">
+            <div>
+              <p class="page-header__eyebrow">Système</p>
+              <h1 class="page-header__title" id="settings-title">Paramètres</h1>
+            </div>
+            <button class="btn btn--accent" type="button"
+              id="btn-save-settings" aria-label="Sauvegarder les paramètres">
+              <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+              Sauvegarder
+            </button>
+          </div>
+
+          <div class="settings-grid">
+
+            <section class="settings-card" aria-labelledby="sc1">
+              <h2 class="settings-card__title" id="sc1">
+                <i class="fa-solid fa-school" aria-hidden="true"></i>
+                Établissement
+              </h2>
+              <div class="form-group">
+                <label class="form-label" for="s-school-name">Nom de l'école</label>
+                <input class="form-input" type="text" id="s-school-name"
+                  placeholder="École primaire…" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="s-school-city">Ville</label>
+                <input class="form-input" type="text" id="s-school-city"
+                  placeholder="Abidjan, Dakar…" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="s-school-year">Année scolaire</label>
+                <input class="form-input" type="text" id="s-school-year"
+                  value="2025 — 2026" />
+              </div>
+            </section>
+
+            <section class="settings-card" aria-labelledby="sc2">
+              <h2 class="settings-card__title" id="sc2">
+                <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                Notifications
+              </h2>
+              <div class="toggle-row">
+                <div>
+                  <p class="toggle-row__label">Alerte absence parent</p>
+                  <p class="toggle-row__desc">Notifier dès qu'une absence est marquée</p>
+                </div>
+                <label class="toggle" aria-label="Activer les alertes d'absence">
+                  <input type="checkbox" checked />
+                  <span class="toggle__track"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div>
+                  <p class="toggle-row__label">Résumé hebdomadaire</p>
+                  <p class="toggle-row__desc">Envoyer un bilan chaque vendredi</p>
+                </div>
+                <label class="toggle" aria-label="Activer le résumé hebdomadaire">
+                  <input type="checkbox" />
+                  <span class="toggle__track"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div>
+                  <p class="toggle-row__label">Notification maladie</p>
+                  <p class="toggle-row__desc">Alerter l'enseignant si le parent signale une maladie</p>
+                </div>
+                <label class="toggle" aria-label="Activer les notifications maladie">
+                  <input type="checkbox" checked />
+                  <span class="toggle__track"></span>
+                </label>
+              </div>
+            </section>
+
+            <section class="settings-card" aria-labelledby="sc3">
+              <h2 class="settings-card__title" id="sc3">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                WhatsApp
+              </h2>
+              <div class="form-group">
+                <label class="form-label" for="s-wa-admin">Numéro administrateur</label>
+                <div class="form-field">
+                  <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                  <input class="form-input" type="tel" id="s-wa-admin"
+                    placeholder="+243 99 000 00 00" autocomplete="tel" />
+                </div>
+              </div>
+              <div class="toggle-row">
+                <div>
+                  <p class="toggle-row__label">Bouton WhatsApp visible</p>
+                  <p class="toggle-row__desc">Sur toutes les interfaces</p>
+                </div>
+                <label class="toggle" aria-label="Afficher le bouton WhatsApp">
+                  <input type="checkbox" checked />
+                  <span class="toggle__track"></span>
+                </label>
+              </div>
+            </section>
+
+            <section class="settings-card" aria-labelledby="sc4">
+              <h2 class="settings-card__title" id="sc4">
+                <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                Sécurité
+              </h2>
+              <div class="toggle-row">
+                <div>
+                  <p class="toggle-row__label">Authentification 2 facteurs</p>
+                  <p class="toggle-row__desc">Requis pour les administrateurs</p>
+                </div>
+                <label class="toggle" aria-label="Activer l'authentification à deux facteurs">
+                  <input type="checkbox" checked />
+                  <span class="toggle__track"></span>
+                </label>
+              </div>
+            </section>
+
+          </div>
+        </section>
+
+      </main>
+
+      <footer class="app-footer" role="contentinfo">
+        <p>© <span id="footer-year"></span> IMB — Intelligence Mobile pour l'École</p>
+        <p>
+          <a href="../index.html" aria-label="Retour au site IMB">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+            Retour au site
+          </a>
+        </p>
+      </footer>
+
+    </div><!-- /.main-layout -->
+  </div><!-- /.app -->
+
+
+  <!-- ═══════════════════════════
+       MODAL — Créer un compte
+  ═══════════════════════════ -->
+  <div class="modal-overlay" id="modal-create"
+    role="dialog" aria-modal="true"
+    aria-labelledby="modal-create-title"
+    aria-hidden="true">
+    <div class="modal">
+
+      <header class="modal__header">
+        <h2 class="modal__title" id="modal-create-title">
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+          Créer un compte
+        </h2>
+        <button class="modal__close" type="button"
+          data-close="modal-create" aria-label="Fermer">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="modal__body">
+
+        <!-- Tabs -->
+        <div class="modal__tabs" role="tablist" aria-label="Type de compte">
+          <button class="modal__tab" type="button" role="tab"
+            aria-selected="true" data-tab="teacher" id="tab-teacher-btn">
+            <i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>
+            Enseignant
+          </button>
+          <button class="modal__tab" type="button" role="tab"
+            aria-selected="false" data-tab="parent" id="tab-parent-btn">
+            <i class="fa-solid fa-users" aria-hidden="true"></i>
+            Parent
+          </button>
+        </div>
+
+        <!-- Formulaire Enseignant -->
+        <div id="tab-panel-teacher" class="modal__tab-panel" data-active="true"
+          role="tabpanel" aria-labelledby="tab-teacher-btn">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="t-first">Prénom <abbr title="Obligatoire">*</abbr></label>
+              <div class="form-field">
+                <i class="fa-solid fa-user" aria-hidden="true"></i>
+                <input class="form-input" type="text" id="t-first"
+                  autocomplete="given-name" placeholder="Alphonsine" aria-required="true" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="t-last">Nom <abbr title="Obligatoire">*</abbr></label>
+              <div class="form-field">
+                <i class="fa-solid fa-user" aria-hidden="true"></i>
+                <input class="form-input" type="text" id="t-last"
+                  autocomplete="family-name" placeholder="Imbanzia" aria-required="true" />
+              </div>
+            </div>
+            <div class="form-group form-group--span2">
+              <label class="form-label" for="t-school">École <abbr title="Obligatoire">*</abbr></label>
+              <div class="form-field">
+                <i class="fa-solid fa-building-columns" aria-hidden="true"></i>
+                <input class="form-input" type="text" id="t-school"
+                  placeholder="Ex : Institut Mampu, École primaire Saint-Joseph…" aria-required="true" />
+              </div>
+            </div>
+            <div class="form-group form-group--span2">
+              <label class="form-label" for="t-email">Email <abbr title="Obligatoire">*</abbr></label>
+              <div class="form-field">
+                <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                <input class="form-input" type="email" id="t-email"
+                  autocomplete="email" placeholder="enseignant@ecole.cd" aria-required="true" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="t-phone">WhatsApp <abbr title="Obligatoire">*</abbr></label>
+              <div class="form-field">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                <input class="form-input" type="tel" id="t-phone"
+                  autocomplete="tel" placeholder="+243 81 000 00 00" aria-required="true" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="t-class">Classe assignée <abbr title="Obligatoire">*</abbr></label>
+              <div class="form-field">
+                <i class="fa-solid fa-chalkboard" aria-hidden="true"></i>
+                <select class="form-input" id="t-class" aria-required="true">
+                  <option value="" disabled selected>Choisir une classe…</option>
+                  <optgroup label="Primaire">
+                    <option value="1ère Primaire">1ère Primaire</option>
+                    <option value="2ème Primaire">2ème Primaire</option>
+                    <option value="3ème Primaire">3ème Primaire</option>
+                    <option value="4ème Primaire">4ème Primaire</option>
+                    <option value="5ème Primaire">5ème Primaire</option>
+                    <option value="6ème Primaire">6ème Primaire</option>
+                    <option value="7ème Primaire">7ème Primaire</option>
+                  </optgroup>
+                  <optgroup label="Secondaire">
+                    <option value="1ère Secondaire">1ère Secondaire</option>
+                    <option value="2ème Secondaire">2ème Secondaire</option>
+                    <option value="3ème Secondaire">3ème Secondaire</option>
+                    <option value="4ème Secondaire">4ème Secondaire</option>
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="t-pass">
+                Mot de passe <abbr title="Obligatoire">*</abbr>
+              </label>
+              <div class="form-field form-field--password">
+                <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                <input class="form-input" type="password" id="t-pass"
+                  autocomplete="new-password" placeholder="••••••••"
+                  aria-required="true" aria-describedby="t-pass-hint"
+                  minlength="8" />
+                <button class="form-field__eye" type="button"
+                  data-target="t-pass"
+                  aria-label="Afficher le mot de passe">
+                  <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                </button>
+              </div>
+              <small class="form-hint" id="t-pass-hint">Minimum 8 caractères</small>
+              <div class="password-strength" id="t-pass-strength" aria-live="polite"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="t-pass2">
+                Confirmer le mot de passe <abbr title="Obligatoire">*</abbr>
+              </label>
+              <div class="form-field form-field--password">
+                <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                <input class="form-input" type="password" id="t-pass2"
+                  autocomplete="new-password" placeholder="••••••••"
+                  aria-required="true" />
+                <button class="form-field__eye" type="button"
+                  data-target="t-pass2"
+                  aria-label="Afficher le mot de passe">
+                  <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulaire Parent -->
+        <div id="tab-panel-parent" class="modal__tab-panel" data-active="false"
+          role="tabpanel" aria-labelledby="tab-parent-btn">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="p-first">Prénom <abbr title="Obligatoire">*</abbr></label>
+              <div class="form-field">
+                <i class="fa-solid fa-user" aria-hidden="true"></i>
+                <input class="form-input" type="text" id="p-first"
+                  autocomplete="given-name" placeholder="Clémentine" aria-required="true" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-last">Nom <abbr title="Obligatoire">*</abbr></label>
+              <div class="form-field">
+                <i class="fa-solid fa-user" aria-hidden="true"></i>
+                <input class="form-input" type="text" id="p-last"
+                  autocomplete="family-name" placeholder="Tshibanda" aria-required="true" />
+              </div>
+            </div>
+            <div class="form-group form-group--span2">
+              <label class="form-label" for="p-email">Email <abbr title="Obligatoire">*</abbr></label>
+              <div class="form-field">
+                <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                <input class="form-input" type="email" id="p-email"
+                  autocomplete="email" placeholder="parent@gmail.com" aria-required="true" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-phone">WhatsApp <abbr title="Obligatoire">*</abbr></label>
+              <div class="form-field">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                <input class="form-input" type="tel" id="p-phone"
+                  autocomplete="tel" placeholder="+243 81 000 00 00" aria-required="true" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-parentid">ID Parent IMB</label>
+              <div class="form-field">
+                <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+                <input class="form-input" type="text" id="p-parentid"
+                  placeholder="IMB-PAR-XXXXX" readonly
+                  aria-describedby="parentid-hint" />
+              </div>
+              <small class="form-hint" id="parentid-hint">
+                <i class="fa-solid fa-circle-info"></i>
+                ID unique généré automatiquement — permet de suivre les enfants dans plusieurs écoles.
+              </small>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-pass">
+                Mot de passe <abbr title="Obligatoire">*</abbr>
+              </label>
+              <div class="form-field form-field--password">
+                <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                <input class="form-input" type="password" id="p-pass"
+                  autocomplete="new-password" placeholder="••••••••"
+                  aria-required="true" aria-describedby="p-pass-hint"
+                  minlength="8" />
+                <button class="form-field__eye" type="button"
+                  data-target="p-pass"
+                  aria-label="Afficher le mot de passe">
+                  <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                </button>
+              </div>
+              <small class="form-hint" id="p-pass-hint">Minimum 8 caractères</small>
+              <div class="password-strength" id="p-pass-strength" aria-live="polite"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-pass2">
+                Confirmer le mot de passe <abbr title="Obligatoire">*</abbr>
+              </label>
+              <div class="form-field form-field--password">
+                <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                <input class="form-input" type="password" id="p-pass2"
+                  autocomplete="new-password" placeholder="••••••••"
+                  aria-required="true" />
+                <button class="form-field__eye" type="button"
+                  data-target="p-pass2"
+                  aria-label="Afficher le mot de passe">
+                  <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Erreur globale formulaire -->
+        <div class="form-error-msg" id="modal-error" style="display:none;font-size:.85rem;padding:.75rem 1rem;background:var(--color-danger-dim);border-radius:var(--radius-md);margin-block-start:.5rem;">
+          <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+          <span id="modal-error-msg"></span>
+        </div>
+
+      </div>
+
+      <footer class="modal__footer">
+        <button class="btn btn--ghost" type="button" data-close="modal-create">
+          Annuler
+        </button>
+        <button class="btn btn--accent" type="button" id="btn-submit-account">
+          <i class="fa-solid fa-check" aria-hidden="true"></i>
+          Créer le compte
+        </button>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════
+       MODAL — Confirmation suppression
+  ═══════════════════════════ -->
+  <div class="modal-overlay" id="modal-confirm"
+    role="alertdialog" aria-modal="true"
+    aria-labelledby="confirm-title"
+    aria-describedby="confirm-desc"
+    aria-hidden="true">
+    <div class="modal confirm-modal">
+      <div class="modal__body">
+        <i class="confirm-modal__icon fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <p class="confirm-modal__title" id="confirm-title">Supprimer ce compte ?</p>
+        <p class="confirm-modal__desc" id="confirm-desc">
+          Le compte de <strong id="confirm-name"></strong> sera définitivement supprimé.
+          Cette action est irréversible.
+        </p>
+      </div>
+      <footer class="modal__footer" style="justify-content:center;">
+        <button class="btn btn--ghost" type="button" data-close="modal-confirm">
+          Annuler
+        </button>
+        <button class="btn btn--danger" type="button" id="btn-confirm-delete">
+          <i class="fa-solid fa-trash" aria-hidden="true"></i>
+          Supprimer
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════
+       MODAL — Ajouter un élève
+  ═══════════════════════════ -->
+  <div class="modal-overlay" id="modal-add-student"
+    role="dialog" aria-modal="true"
+    aria-labelledby="modal-student-title"
+    aria-hidden="true">
+    <div class="modal">
+
+      <header class="modal__header">
+        <h2 class="modal__title" id="modal-student-title">
+          <i class="fa-solid fa-user-graduate" aria-hidden="true"></i>
+          Ajouter un élève
+        </h2>
+        <button class="modal__close" type="button"
+          data-close="modal-add-student" aria-label="Fermer">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="modal__body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="s-first">Prénom <abbr title="Obligatoire">*</abbr></label>
+            <div class="form-field">
+              <i class="fa-solid fa-user" aria-hidden="true"></i>
+              <input class="form-input" type="text" id="s-first"
+                autocomplete="given-name" placeholder="Lucas" aria-required="true" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="s-last">Nom <abbr title="Obligatoire">*</abbr></label>
+            <div class="form-field">
+              <i class="fa-solid fa-user" aria-hidden="true"></i>
+              <input class="form-input" type="text" id="s-last"
+                autocomplete="family-name" placeholder="Tshibanda" aria-required="true" />
+            </div>
+          </div>
+          <div class="form-group form-group--span2">
+            <label class="form-label" for="s-school">École <abbr title="Obligatoire">*</abbr></label>
+            <div class="form-field">
+              <i class="fa-solid fa-building-columns" aria-hidden="true"></i>
+              <input class="form-input" type="text" id="s-school"
+                placeholder="Ex : École Primaire IMB" aria-required="true" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="s-class">Classe <abbr title="Obligatoire">*</abbr></label>
+            <div class="form-field">
+              <i class="fa-solid fa-chalkboard" aria-hidden="true"></i>
+              <select class="form-input" id="s-class" aria-required="true">
+                <option value="" disabled selected>Choisir…</option>
+                <optgroup label="Primaire">
+                  <option>1ère Primaire</option>
+                  <option>2ème Primaire</option>
+                  <option>3ème Primaire</option>
+                  <option>4ème Primaire</option>
+                  <option>5ème Primaire</option>
+                  <option>6ème Primaire</option>
+                  <option>7ème Primaire</option>
+                </optgroup>
+                <optgroup label="Secondaire">
+                  <option>1ère Secondaire</option>
+                  <option>2ème Secondaire</option>
+                  <option>3ème Secondaire</option>
+                  <option>4ème Secondaire</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="s-parent-id">ID Parent IMB</label>
+            <div class="form-field">
+              <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+              <input class="form-input" type="text" id="s-parent-id"
+                placeholder="IMB-PAR-XXXXX"
+                aria-describedby="s-parent-hint" />
+            </div>
+            <small class="form-hint" id="s-parent-hint">
+              L'ID unique du parent reçu à la création de son compte.
+            </small>
+          </div>
+          <div class="form-group form-group--span2">
+            <label class="form-label" for="s-teacher">Enseignant responsable</label>
+            <div class="form-field">
+              <i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>
+              <input class="form-input" type="text" id="s-teacher"
+                placeholder="Ex : Alphonsine Imbanzia" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-error-msg" id="student-error" style="display:none;font-size:.85rem;padding:.75rem 1rem;background:var(--color-danger-dim);border-radius:var(--radius-md);margin-block-start:.5rem;">
+          <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+          <span id="student-error-msg"></span>
+        </div>
+      </div>
+
+      <footer class="modal__footer">
+        <button class="btn btn--ghost" type="button" data-close="modal-add-student">
+          Annuler
+        </button>
+        <button class="btn btn--accent" type="button" id="btn-submit-student">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          Ajouter l'élève
+        </button>
+      </footer>
+
+    </div>
+  </div>
+
+  <script type="module" src="../assets/js/admin.js"></script>
+
+</body>
+</html>
