@@ -10,8 +10,8 @@
 
 'use strict';
 
+import { closeModal, initModals, openModal } from './modules/Modal.js';
 import { showToast } from './modules/Toast.js';
-import { openModal, closeModal, initModals } from './modules/Modal.js';
 import { UserFactory } from './patterns/UserFactory.js';
 
 /* ══════════════════════════════════════════════════
@@ -75,10 +75,10 @@ const DEMO_PARENTS = [
 
 const DEMO_FEED = [
   { type: 'create', text: '<strong>Compte créé</strong> — Alphonsine Imbanzia (Enseignante, CM2 A)' },
-  { type: 'login', text: '<strong>Connexion</strong> — Emmanuel Mbulu (Parent)' },
+  { type: 'login',  text: '<strong>Connexion</strong> — Emmanuel Mbulu (Parent)' },
   { type: 'update', text: '<strong>Rapport soumis</strong> — Patient Tshibangu pour Lucas Tshibanda' },
   { type: 'create', text: '<strong>Nouveau parent</strong> — Rodrigue Maghoma — 3 enfants associés' },
-  { type: 'login', text: '<strong>Connexion</strong> — Joséphine Kambayolo (Enseignante)' },
+  { type: 'login',  text: '<strong>Connexion</strong> — Joséphine Kambayolo (Enseignante)' },
 ];
 
 /* ══════════════════════════════════════════════════
@@ -87,13 +87,13 @@ const DEMO_FEED = [
 const DataStore = (() => {
   // Récupérer depuis sessionStorage si disponible (persiste pendant la session)
   const _savedTeachers = sessionStorage.getItem('imb_teachers');
-  const _savedParents = sessionStorage.getItem('imb_parents');
+  const _savedParents  = sessionStorage.getItem('imb_parents');
   let _teachers = _savedTeachers ? JSON.parse(_savedTeachers) : [...DEMO_TEACHERS];
-  let _parents = _savedParents ? JSON.parse(_savedParents) : [...DEMO_PARENTS];
+  let _parents  = _savedParents  ? JSON.parse(_savedParents)  : [...DEMO_PARENTS];
   let _students = [];
   let _schoolId = 'demo-school';
-  let _isDemo = true;
-  const _subs = new Set();
+  let _isDemo   = true;
+  const _subs   = new Set();
 
   function _notify(event, payload) {
     _subs.forEach(fn => fn(event, payload));
@@ -101,14 +101,14 @@ const DataStore = (() => {
 
   return {
     getTeachers: () => [..._teachers],
-    getParents: () => [..._parents],
+    getParents:  () => [..._parents],
     getStudents: () => [..._students],
     getSchoolId: () => _schoolId,
-    isDemo: () => _isDemo,
+    isDemo:      () => _isDemo,
 
-    setSchoolId(id) { _schoolId = id; },
+    setSchoolId(id)   { _schoolId = id; },
     setTeachers(list) { _teachers = list; _isDemo = false; _notify('teachers:loaded', list); },
-    setParents(list) { _parents = list; _isDemo = false; _notify('parents:loaded', list); },
+    setParents(list)  { _parents  = list; _isDemo = false; _notify('parents:loaded',  list); },
     setStudents(list) { _students = list; _notify('students:loaded', list); },
 
     addTeacher(u) {
@@ -145,7 +145,7 @@ const DataStore = (() => {
       return { teachers: _teachers.length, parents: _parents.length, students: _students.length };
     },
 
-    subscribe(fn) { _subs.add(fn); },
+    subscribe(fn)   { _subs.add(fn); },
     unsubscribe(fn) { _subs.delete(fn); },
   };
 })();
@@ -184,8 +184,8 @@ const DataLoader = {
               // Afficher quand même l'email Firebase dans la sidebar
               UI.updateSidebarUser({
                 firstName: 'Admin',
-                lastName: '',
-                email: user.email,
+                lastName:  '',
+                email:     user.email,
               });
               resolve(false);
               return;
@@ -234,19 +234,19 @@ const DataLoader = {
    MODULE — Navigation
    ══════════════════════════════════════════════════ */
 const Navigation = (() => {
-  const _navItems = document.querySelectorAll('.nav-item[data-page]');
-  const _pages = document.querySelectorAll('.page');
-  const _subtitle = document.getElementById('topbar-subtitle');
+  const _navItems  = document.querySelectorAll('.nav-item[data-page]');
+  const _pages     = document.querySelectorAll('.page');
+  const _subtitle  = document.getElementById('topbar-subtitle');
   const _listeners = new Set();
 
   const LABELS = {
     dashboard: '/ Tableau de bord',
-    teachers: '/ Enseignants',
-    parents: '/ Parents',
-    students: '/ Élèves',
-    classes: '/ Classes',
-    reports: '/ Rapports',
-    settings: '/ Paramètres',
+    teachers:  '/ Enseignants',
+    parents:   '/ Parents',
+    students:  '/ Élèves',
+    classes:   '/ Classes',
+    reports:   '/ Rapports',
+    settings:  '/ Paramètres',
   };
 
   function goTo(pageId) {
@@ -280,7 +280,7 @@ const Navigation = (() => {
    ══════════════════════════════════════════════════ */
 const Sidebar = (() => {
   const _sidebar = document.getElementById('sidebar');
-  const _burger = document.getElementById('burger');
+  const _burger  = document.getElementById('burger');
   const _overlay = document.getElementById('sidebar-overlay');
 
   function open() {
@@ -315,23 +315,23 @@ const UI = {
   updateKPIs() {
     const { teachers, parents, students } = DataStore.counts();
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set('kpi-teachers', teachers);
-    set('kpi-parents', parents);
-    set('kpi-students', students);
+    set('kpi-teachers',   teachers);
+    set('kpi-parents',    parents);
+    set('kpi-students',   students);
     set('badge-teachers', teachers);
-    set('badge-parents', parents);
+    set('badge-parents',  parents);
     set('badge-students', students);
   },
 
   updateActivationStats() {
-    const all = [...DataStore.getTeachers(), ...DataStore.getParents()];
+    const all    = [...DataStore.getTeachers(), ...DataStore.getParents()];
     const active = all.filter(u => u.status === 'active').length;
-    const total = all.length;
-    const pct = total ? Math.round((active / total) * 100) : 0;
+    const total  = all.length;
+    const pct    = total ? Math.round((active / total) * 100) : 0;
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set('stat-active', active);
+    set('stat-active',   active);
     set('stat-inactive', total - active);
-    set('stat-total', total);
+    set('stat-total',    total);
     set('activation-pct', pct);
     const bar = document.getElementById('activation-bar');
     if (bar) {
@@ -342,15 +342,15 @@ const UI = {
 
   updateSidebarUser(profile) {
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set('sidebar-name', UserFactory.fullName(profile));
-    set('sidebar-email', profile.email ?? '');
+    set('sidebar-name',   UserFactory.fullName(profile));
+    set('sidebar-email',  profile.email ?? '');
     set('sidebar-avatar', UserFactory.initials(profile));
   },
 
   initDemoSidebarUser() {
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set('sidebar-name', 'Super Admin');
-    set('sidebar-email', 'admin@imb.cd');
+    set('sidebar-name',   'Super Admin');
+    set('sidebar-email',  'admin@imb.cd');
     set('sidebar-avatar', 'SA');
   },
 
@@ -408,7 +408,6 @@ const UI = {
   },
 };
 
-
 /* ══════════════════════════════════════════════════
    MODULE — Tableaux
    ══════════════════════════════════════════════════ */
@@ -443,7 +442,7 @@ const Tables = (() => {
 
   function _actionBtns(user, role) {
     const phone = user.phone?.replace(/\D/g, '') ?? '';
-    const name = UserFactory.fullName(user);
+    const name  = UserFactory.fullName(user);
     return `
       <div class="row-actions">
         <button class="action-btn action-btn--wa" type="button"
@@ -503,9 +502,9 @@ const Tables = (() => {
   }
 
   function renderTeachers() {
-    const tbody = document.getElementById('teachers-tbody');
+    const tbody   = document.getElementById('teachers-tbody');
     const countEl = document.getElementById('teachers-count');
-    const list = DataStore.getTeachers();
+    const list    = DataStore.getTeachers();
     if (!tbody) return;
 
     const n = list.length;
@@ -538,9 +537,9 @@ const Tables = (() => {
   }
 
   function renderParents() {
-    const tbody = document.getElementById('parents-tbody');
+    const tbody   = document.getElementById('parents-tbody');
     const countEl = document.getElementById('parents-count');
-    const list = DataStore.getParents();
+    const list    = DataStore.getParents();
     if (!tbody) return;
 
     const n = list.length;
@@ -593,14 +592,20 @@ const Tables = (() => {
       }
     }
 
+    const delta = role === 'teacher' ? { teachers: -1 } : { parents: -1 };
     if (role === 'teacher') DataStore.deleteTeacher(id);
-    else DataStore.deleteParent(id);
+    else                    DataStore.deleteParent(id);
 
     closeModal('modal-confirm');
     renderTeachers(); renderParents();
     UI.updateKPIs(); UI.updateActivationStats();
     UI.addFeedItem('delete', `<strong>Compte supprimé</strong> — ${name}`);
     showToast(`Compte de ${name} supprimé.`, 'error');
+    // Mettre à jour les stats publiques
+    try {
+      const { StatsService } = await import('./services/firebase.js');
+      await StatsService.update(delta);
+    } catch {}
     _pendingDelete = null;
   });
 
@@ -614,8 +619,6 @@ const Tables = (() => {
 
   return { renderTeachers, renderParents };
 })();
-
-
 
 /* ══════════════════════════════════════════════════
    MODULE — Création de compte
@@ -664,13 +667,13 @@ const CreateAccount = (() => {
       { inputId: 'p-pass', strengthId: 'p-pass-strength' },
     ];
     pairs.forEach(({ inputId, strengthId }) => {
-      const input = document.getElementById(inputId);
+      const input    = document.getElementById(inputId);
       const strength = document.getElementById(strengthId);
       if (!input || !strength) return;
       input.addEventListener('input', () => {
         const val = input.value;
         if (!val) { strength.textContent = ''; strength.removeAttribute('data-level'); return; }
-        const hasUpper = /[A-Z]/.test(val);
+        const hasUpper  = /[A-Z]/.test(val);
         const hasNumber = /[0-9]/.test(val);
         const hasSymbol = /[^A-Za-z0-9]/.test(val);
         const len = val.length;
@@ -751,16 +754,16 @@ const CreateAccount = (() => {
       if (_activeTab === 'teacher') {
         const userData = {
           role: 'teacher',
-          firstName: _val('t-first'),
-          lastName: _val('t-last'),
-          schoolName: _val('t-school'),
-          email: _val('t-email'),
-          phone: _val('t-phone'),
+          firstName:     _val('t-first'),
+          lastName:      _val('t-last'),
+          schoolName:    _val('t-school'),
+          email:         _val('t-email'),
+          phone:         _val('t-phone'),
           assignedClass: _val('t-class'),
-          studentCount: 0,
+          studentCount:  0,
           schoolId,
-          status: 'active',
-          createdAt: new Date().toLocaleDateString('fr-FR'),
+          status:        'active',
+          createdAt:     new Date().toLocaleDateString('fr-FR'),
         };
 
         let newUser;
@@ -778,19 +781,24 @@ const CreateAccount = (() => {
         DataStore.addTeacher(newUser);
         UI.addFeedItem('create', `<strong>Enseignant créé</strong> — ${UserFactory.fullName(newUser)}, ${_val('t-class')}`);
         showToast(`${UserFactory.fullName(newUser)} créé avec succès.`, 'success');
+        // Mettre à jour les stats publiques
+        try {
+          const { StatsService } = await import('./services/firebase.js');
+          await StatsService.update({ teachers: 1 });
+        } catch {}
 
       } else {
         const parentId = _val('p-parentid') || UserFactory.generateParentId();
         const userData = {
-          role: 'parent',
+          role:      'parent',
           firstName: _val('p-first'),
-          lastName: _val('p-last'),
-          email: _val('p-email'),
-          phone: _val('p-phone'),
+          lastName:  _val('p-last'),
+          email:     _val('p-email'),
+          phone:     _val('p-phone'),
           parentId,
-          children: [],
+          children:  [],
           schoolId,
-          status: 'active',
+          status:    'active',
           createdAt: new Date().toLocaleDateString('fr-FR'),
         };
 
@@ -807,6 +815,11 @@ const CreateAccount = (() => {
         DataStore.addParent(newUser);
         UI.addFeedItem('create', `<strong>Parent créé</strong> — ${UserFactory.fullName(newUser)} · ID: ${parentId}`);
         showToast(`${UserFactory.fullName(newUser)} créé avec succès.`, 'success');
+        // Mettre à jour les stats publiques
+        try {
+          const { StatsService } = await import('./services/firebase.js');
+          await StatsService.update({ parents: 1 });
+        } catch {}
       }
 
       closeModal('modal-create');
@@ -855,11 +868,11 @@ const CreateAccount = (() => {
     _tabs.forEach(t => t.addEventListener('click', () => _switchTab(t.dataset.tab)));
     document.getElementById('btn-submit-account')?.addEventListener('click', _submit);
 
-    document.getElementById('btn-create-main')?.addEventListener('click', () => openCreate('teacher'));
-    document.getElementById('btn-add-teacher')?.addEventListener('click', () => openCreate('teacher'));
-    document.getElementById('btn-add-parent')?.addEventListener('click', () => openCreate('parent'));
+    document.getElementById('btn-create-main')?.addEventListener('click',  () => openCreate('teacher'));
+    document.getElementById('btn-add-teacher')?.addEventListener('click',  () => openCreate('teacher'));
+    document.getElementById('btn-add-parent')?.addEventListener('click',   () => openCreate('parent'));
     // btn-add-student géré par Students.init()
-    document.getElementById('btn-add-class')?.addEventListener('click', () => showToast('Module classes disponible prochainement.', 'info'));
+    document.getElementById('btn-add-class')?.addEventListener('click',    () => showToast('Module classes disponible prochainement.', 'info'));
 
     // Initialiser après ouverture de la modal
     document.getElementById('modal-create')?.addEventListener('click', () => {
@@ -870,9 +883,6 @@ const CreateAccount = (() => {
 
   return { init, openCreate };
 })();
-
-
-
 
 /* ══════════════════════════════════════════════════
    MODULE — Settings
@@ -911,18 +921,19 @@ const Students = (() => {
 
   // Données démo (fallback si Firebase non configuré)
   const DEMO_STUDENTS = [
-    { id: 's1', firstName: 'Lucas', lastName: 'Tshibanda', schoolName: 'École Primaire IMB', assignedClass: 'CM2 A', teacherName: 'Alphonsine Imbanzia', parentId: 'IMB-PAR-10042', isDemo: true },
-    { id: 's2', firstName: 'Marie', lastName: 'Tshibanda', schoolName: 'École Primaire IMB', assignedClass: 'CE2 A', teacherName: 'Joséphine Kambayolo', parentId: 'IMB-PAR-10042', isDemo: true },
-    { id: 's3', firstName: 'Junior', lastName: 'Mbulu', schoolName: 'École Primaire IMB', assignedClass: 'CM1 B', teacherName: 'Patient Tshibangu', parentId: 'IMB-PAR-10043', isDemo: true },
-    { id: 's4', firstName: 'Espoir', lastName: 'Bimbakila', schoolName: 'École Primaire IMB', assignedClass: 'CP A', teacherName: 'Théodore Mboti', parentId: 'IMB-PAR-10044', isDemo: true },
-    { id: 's5', firstName: 'Prince', lastName: 'Maghoma', schoolName: 'Institut Mampu', assignedClass: 'CM2 A', teacherName: 'Alphonsine Imbanzia', parentId: 'IMB-PAR-10045', isDemo: true },
-    { id: 's6', firstName: 'Gloire', lastName: 'Maghoma', schoolName: 'Institut Mampu', assignedClass: 'CM1 B', teacherName: 'Patient Tshibangu', parentId: 'IMB-PAR-10045', isDemo: true },
-    { id: 's7', firstName: 'Séraphine', lastName: 'Maghoma', schoolName: 'Institut Mampu', assignedClass: 'CE2 A', teacherName: 'Joséphine Kambayolo', parentId: 'IMB-PAR-10045', isDemo: true },
-    { id: 's8', firstName: 'David', lastName: 'Imbanzia', schoolName: 'École Sainte-Marie', assignedClass: '3ème Primaire', teacherName: '—', parentId: 'IMB-PAR-10046', isDemo: true },
+    { id: 's1', firstName: 'Lucas',     lastName: 'Tshibanda', schoolName: 'École Primaire IMB',  assignedClass: 'CM2 A',         teacherName: 'Alphonsine Imbanzia', parentId: 'IMB-PAR-10042', isDemo: true },
+    { id: 's2', firstName: 'Marie',     lastName: 'Tshibanda', schoolName: 'École Primaire IMB',  assignedClass: 'CE2 A',         teacherName: 'Joséphine Kambayolo', parentId: 'IMB-PAR-10042', isDemo: true },
+    { id: 's3', firstName: 'Junior',    lastName: 'Mbulu',     schoolName: 'École Primaire IMB',  assignedClass: 'CM1 B',         teacherName: 'Patient Tshibangu',   parentId: 'IMB-PAR-10043', isDemo: true },
+    { id: 's4', firstName: 'Espoir',    lastName: 'Bimbakila', schoolName: 'École Primaire IMB',  assignedClass: 'CP A',          teacherName: 'Théodore Mboti',      parentId: 'IMB-PAR-10044', isDemo: true },
+    { id: 's5', firstName: 'Prince',    lastName: 'Maghoma',   schoolName: 'Institut Mampu',      assignedClass: 'CM2 A',         teacherName: 'Alphonsine Imbanzia', parentId: 'IMB-PAR-10045', isDemo: true },
+    { id: 's6', firstName: 'Gloire',    lastName: 'Maghoma',   schoolName: 'Institut Mampu',      assignedClass: 'CM1 B',         teacherName: 'Patient Tshibangu',   parentId: 'IMB-PAR-10045', isDemo: true },
+    { id: 's7', firstName: 'Séraphine', lastName: 'Maghoma',   schoolName: 'Institut Mampu',      assignedClass: 'CE2 A',         teacherName: 'Joséphine Kambayolo', parentId: 'IMB-PAR-10045', isDemo: true },
+    { id: 's8', firstName: 'David',     lastName: 'Imbanzia',  schoolName: 'École Sainte-Marie',  assignedClass: '3ème Primaire', teacherName: '—',                  parentId: 'IMB-PAR-10046', isDemo: true },
   ];
 
-  let _students = [...DEMO_STUDENTS];
-  let _isFirebase = false;
+  let _students    = [];  // Vide au départ — Firebase ou démo selon connexion
+  let _isFirebase  = false;
+  let _firebaseAttempted = false; // Firebase a-t-il été tenté ?
 
   const AVATAR_COLORS = [
     { bg: '#DBEAFE', fg: '#1D4ED8' }, { bg: '#D1FAE5', fg: '#065F46' },
@@ -947,7 +958,7 @@ const Students = (() => {
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
     set('students-count', `${n} élève${n > 1 ? 's' : ''}`);
     set('badge-students', n);
-    set('kpi-students', n);
+    set('kpi-students',   n);
   }
 
   async function _deleteFromFirebase(id) {
@@ -1014,8 +1025,8 @@ const Students = (() => {
     // Bind suppression
     tbody.querySelectorAll('[data-student-delete]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        const id = btn.dataset.studentDelete;
-        const name = btn.dataset.studentName;
+        const id     = btn.dataset.studentDelete;
+        const name   = btn.dataset.studentName;
         const isDemo = btn.dataset.isDemo === 'true';
 
         if (!isDemo && _isFirebase) {
@@ -1035,17 +1046,22 @@ const Students = (() => {
    * Charger les vrais élèves depuis Firebase
    */
   async function loadFromFirebase(schoolId) {
+    _firebaseAttempted = true;
     try {
       const { StudentService } = await import('./services/firebase.js');
       const students = await StudentService.listBySchool(schoolId);
-      if (students.length > 0) {
-        _students = students;
-        _isFirebase = true;
-        render();
-        console.info(`IMB: ${students.length} élève(s) chargé(s) depuis Firebase`);
-      }
+      // Toujours utiliser Firebase — même si 0 élèves (liste vide = vide réel)
+      _students   = students;
+      _isFirebase = true;
+      render();
+      console.info(`IMB: ${students.length} élève(s) chargé(s) depuis Firebase`);
     } catch (err) {
       console.warn('IMB: Erreur chargement élèves Firebase:', err.message);
+      // Seulement si Firebase échoue → afficher les démo
+      if (!_isFirebase) {
+        _students = [...DEMO_STUDENTS];
+        render();
+      }
     }
   }
 
@@ -1054,6 +1070,7 @@ const Students = (() => {
    */
   async function addStudent(data) {
     if (_isFirebase) {
+      // Mode Firebase réel — sauvegarder dans Firestore
       try {
         const { StudentService } = await import('./services/firebase.js');
         const docRef = await StudentService.create(data);
@@ -1067,11 +1084,9 @@ const Students = (() => {
         return false;
       }
     } else {
-      // Mode démo
-      const newStudent = { id: `demo-s${Date.now()}`, ...data, isDemo: true };
-      _students.push(newStudent);
-      render();
-      return true;
+      // Firebase non disponible — avertir l'utilisateur
+      showToast('Connectez-vous d\'abord via login.html pour sauvegarder les élèves.', 'warn', 5000);
+      return false;
     }
   }
 
@@ -1099,7 +1114,7 @@ const Students = (() => {
       _hideStudentError();
 
       const firstName = _val('s-first');
-      const lastName = _val('s-last');
+      const lastName  = _val('s-last');
       const schoolName = _val('s-school');
       const assignedClass = _val('s-class');
 
@@ -1116,10 +1131,10 @@ const Students = (() => {
         lastName,
         schoolName,
         assignedClass,
-        parentId: _val('s-parent-id') || '—',
-        teacherName: _val('s-teacher') || '—',
-        schoolId: DataStore.getSchoolId(),
-        classId: assignedClass,
+        parentId:    _val('s-parent-id')  || '—',
+        teacherName: _val('s-teacher')    || '—',
+        schoolId:    DataStore.getSchoolId(),
+        classId:     assignedClass,
       };
 
       const ok = await addStudent(studentData);
@@ -1131,6 +1146,11 @@ const Students = (() => {
           .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
         UI.addFeedItem('create', `<strong>Élève ajouté</strong> — ${firstName} ${lastName}`);
         showToast(`Élève ${firstName} ${lastName} ajouté avec succès.`, 'success');
+        // Mettre à jour les stats publiques
+        try {
+          const { StatsService } = await import('./services/firebase.js');
+          await StatsService.update({ students: 1 });
+        } catch {}
       }
 
       if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-plus"></i> Ajouter l\'élève'; }
@@ -1159,7 +1179,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   Navigation.onNavigate(page => {
     if (page === 'teachers') Tables.renderTeachers();
-    if (page === 'parents') Tables.renderParents();
+    if (page === 'parents')  Tables.renderParents();
   });
 
   // 2. Tenter Firebase d'abord (si connecté → vraies données)
@@ -1172,7 +1192,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     UI.initDemoFeed();
     Tables.renderTeachers();
     Tables.renderParents();
-    Students.render();
+    // NE PAS charger les démo élèves ici — attendons Firebase
+    // Students.render() sera appelé après loadFromFirebase()
     UI.updateKPIs();
     UI.updateActivationStats();
     showToast('Mode démo — configurez Firebase pour vos vraies données.', 'info', 3500);

@@ -184,7 +184,12 @@ const Counters = (() => {
     if (!stats) return;
     Object.entries(STAT_KEYS).forEach(([sectionId, statKey]) => {
       const el = document.querySelector(`#${sectionId} .stat-counter`);
-      if (el) _animateCount(el, stats[statKey] ?? 0);
+      if (el) {
+        const val = stats[statKey] ?? 0;
+        // Forcer l'animation même si le compteur était à 0
+        el.textContent = '0';
+        _animateCount(el, val);
+      }
     });
   }
 
@@ -329,6 +334,11 @@ function initFooterYear() {
 /* ══════════════════════════════════════════════════
    BOOTSTRAP
    ══════════════════════════════════════════════════ */
+// Écouter les stats Firebase dès que possible (avant DOMContentLoaded)
+window.addEventListener('imb:stats-ready', () => {
+  Counters.refresh();
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   Header.init();
   MobileMenu.init();
@@ -337,8 +347,8 @@ document.addEventListener('DOMContentLoaded', () => {
   ContactForm.init();
   initFooterYear();
 
-  // Rafraîchir les compteurs dès que Firebase répond
-  window.addEventListener('imb:stats-ready', () => {
+  // Si les stats sont déjà disponibles au chargement → rafraîchir immédiatement
+  if (window.__IMB_STATS__) {
     Counters.refresh();
-  });
+  }
 });

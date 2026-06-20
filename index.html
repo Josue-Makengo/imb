@@ -15,10 +15,10 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK — Statistiques publiques -->
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-    import { getFirestore, collection, getCountFromServer } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { initializeApp }          from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
     const firebaseConfig = {
       apiKey:            "AIzaSyC_91KMCxvnfCGCThsI4CBKzSWDBboPe18",
@@ -34,41 +34,38 @@
 
     async function loadRealStats() {
       try {
-        // Importer query et where pour filtrer par rôle
-        const { query, where } = await import(
-          'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
-        );
+        // Lire le document public stats/global
+        // Ce document est mis à jour par l'admin à chaque création/suppression
+        const snap = await getDoc(doc(db, 'stats', 'global'));
 
-        const [studentsSnap, parentsSnap, schoolsSnap, teachersSnap] = await Promise.all([
-          getCountFromServer(collection(db, 'students')),
-          getCountFromServer(query(collection(db, 'users'), where('role', '==', 'parent'))),
-          getCountFromServer(collection(db, 'schools')),
-          getCountFromServer(query(collection(db, 'users'), where('role', '==', 'teacher'))),
-        ]);
-
-        window.__IMB_STATS__ = {
-          students: studentsSnap.data().count,
-          parents:  parentsSnap.data().count,
-          schools:  schoolsSnap.data().count,
-          teachers: teachersSnap.data().count,
-        };
-
-        // Notifier main.js que les stats sont prêtes
-        // Déclencher refresh via événement custom
-        window.dispatchEvent(new CustomEvent('imb:stats-ready', {
-          detail: window.__IMB_STATS__
-        }));
+        if (snap.exists()) {
+          const data = snap.data();
+          window.__IMB_STATS__ = {
+            students: data.students ?? 0,
+            parents:  data.parents  ?? 0,
+            schools:  data.schools  ?? 0,
+            teachers: data.teachers ?? 0,
+          };
+        } else {
+          // Document stats pas encore créé
+          window.__IMB_STATS__ = { students: 0, parents: 0, schools: 0, teachers: 0 };
+        }
 
       } catch (err) {
-        console.warn('Stats Firebase non disponibles:', err.message);
+        console.warn('Stats IMB non disponibles:', err.message);
         window.__IMB_STATS__ = { students: 0, parents: 0, schools: 0, teachers: 0 };
-        window.dispatchEvent(new CustomEvent('imb:stats-ready', {
-          detail: window.__IMB_STATS__
-        }));
       }
     }
 
-    loadRealStats();
+    // Charger les stats et notifier main.js
+    // Le délai assure que main.js est initialisé avant l'événement
+    loadRealStats().then(() => {
+      // Double dispatch : immédiat + après délai (sécurité)
+      window.dispatchEvent(new CustomEvent('imb:stats-ready', { detail: window.__IMB_STATS__ }));
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('imb:stats-ready', { detail: window.__IMB_STATS__ }));
+      }, 1500);
+    });
   </script>
 
   <link rel="stylesheet" href="assets/css/style.css" />
